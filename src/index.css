@@ -219,33 +219,33 @@
 }
 
 /* ─── Cyberpunk RED Glow & Scanline Keyframes ────────────────────────── */
-@keyframes glowPulseYellow {
+@keyframes glowPulseRed {
   0%, 100% {
     box-shadow:
-      0 0 0 2px #ffee00,
-      0 0 20px 5px rgba(255, 238, 0, 0.65),
-      0 0 45px 12px rgba(255, 238, 0, 0.3);
+      0 0 0 2px #e60037,
+      0 0 20px 5px rgba(230, 0, 55, 0.55),
+      0 0 45px 12px rgba(230, 0, 55, 0.25);
   }
   50% {
     box-shadow:
-      0 0 0 2px #ffee00,
-      0 0 32px 10px rgba(255, 238, 0, 0.85),
-      0 0 65px 20px rgba(255, 238, 0, 0.45);
+      0 0 0 2px #e60037,
+      0 0 32px 10px rgba(230, 0, 55, 0.75),
+      0 0 65px 20px rgba(230, 0, 55, 0.35);
   }
 }
 
 @keyframes glowPulseCyan {
   0%, 100% {
     box-shadow:
-      0 0 0 2px #00f0ff,
-      0 0 20px 5px rgba(0, 240, 255, 0.65),
-      0 0 45px 12px rgba(0, 240, 255, 0.3);
+      0 0 0 2px #ff2a55,
+      0 0 20px 5px rgba(255, 42, 85, 0.55),
+      0 0 45px 12px rgba(255, 42, 85, 0.25);
   }
   50% {
     box-shadow:
-      0 0 0 2px #00f0ff,
-      0 0 32px 10px rgba(0, 240, 255, 0.85),
-      0 0 65px 20px rgba(0, 240, 255, 0.45);
+      0 0 0 2px #ff2a55,
+      0 0 32px 10px rgba(255, 42, 85, 0.75),
+      0 0 65px 20px rgba(255, 42, 85, 0.35);
   }
 }
 
@@ -271,8 +271,8 @@
 }
 
 .system-card-cyberpunk:hover {
-  animation: glowPulseYellow 1.8s ease-in-out infinite;
-  border-color: #ffee00 !important;
+  animation: glowPulseRed 1.8s ease-in-out infinite;
+  border-color: #e60037 !important;
 }
 
 .system-card-pf2e:hover {
@@ -302,8 +302,8 @@
 }
 
 .border-glow-cyberpunk {
-  box-shadow: 0 0 18px rgba(255, 238, 0, 0.45);
-  border-color: #ffee00 !important;
+  box-shadow: 0 0 18px rgba(230, 0, 55, 0.45);
+  border-color: #e60037 !important;
 }
 
 .border-glow-pf2e {

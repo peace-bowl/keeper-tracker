@@ -400,7 +400,7 @@ export default function App() {
   return (
     <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
       selectedGameSystem === 'cyberpunk'
-        ? 'dark:bg-[#08090a] bg-[#eaedef] dark:text-[#f0f6fc] text-[#0d0d0d] bg-cyber-scanline selection:bg-[#ffee00] selection:text-black'
+        ? 'dark:bg-[#090507] bg-[#f4ecee] dark:text-[#f0f6fc] text-[#0d0d0d] bg-cyber-scanline selection:bg-[#e60037] selection:text-white'
         : selectedGameSystem === 'pf2e'
         ? 'dark:bg-[#10141d] bg-[#f4f1ea] dark:text-[#e2e8f0] text-[#1e293b] bg-pf2e-grid selection:bg-[#d4af37] selection:text-black'
         : 'dark:bg-[#141816] bg-[#F5F1E6] bg-grid-1960s dark:text-[#EBE6DB] text-[#1C201D] selection:bg-[#E65A2B] selection:text-white'

@@ -18,7 +18,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
       {/* Background ambient lighting per system */}
       <div className={`fixed inset-0 pointer-events-none transition-opacity duration-500 ${
         selectedSystem === 'cyberpunk'
-          ? 'bg-radial from-[#ffee00]/10 via-transparent to-transparent opacity-80'
+          ? 'bg-radial from-[#e60037]/15 via-transparent to-transparent opacity-80'
           : selectedSystem === 'pf2e'
           ? 'bg-radial from-[#d4af37]/10 via-transparent to-transparent opacity-70'
           : 'bg-radial from-[#E65A2B]/10 via-transparent to-transparent opacity-60'
@@ -31,7 +31,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
           <div className="relative">
             <div className={`absolute inset-0 rounded-full blur-2xl scale-150 transition-colors duration-300 ${
               selectedSystem === 'cyberpunk'
-                ? 'bg-[#ffee00] opacity-25'
+                ? 'bg-[#e60037] opacity-30'
                 : selectedSystem === 'pf2e'
                 ? 'bg-[#d4af37] opacity-25'
                 : 'bg-[#E65A2B] opacity-20'
@@ -41,7 +41,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               alt="Multi-TTRPG Dashboard Logo"
               className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 object-cover shadow-2xl transition-all duration-300 ${
                 selectedSystem === 'cyberpunk'
-                  ? 'border-[#ffee00] shadow-[0_0_20px_rgba(255,238,0,0.4)]'
+                  ? 'border-[#e60037] shadow-[0_0_20px_rgba(230,0,55,0.4)]'
                   : selectedSystem === 'pf2e'
                   ? 'border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.4)]'
                   : 'border-[#2D3732] shadow-retro'
@@ -53,7 +53,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
             <div className="flex items-center justify-center gap-2 mb-1">
               <span className={`stamp-badge text-[10px] tracking-widest ${
                 selectedSystem === 'cyberpunk'
-                  ? 'border-[#ffee00] text-[#ffee00] bg-[#161b22]'
+                  ? 'border-[#e60037] text-[#ff2a55] bg-[#1a080c]'
                   : selectedSystem === 'pf2e'
                   ? 'border-[#d4af37] text-[#d4af37] bg-[#161c28]'
                   : 'border-[#E65A2B] text-[#E65A2B]'
@@ -109,19 +109,19 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               onClick={() => setSelectedSystem('cyberpunk')}
               className={`p-4 rounded-sm border-2 text-left transition-all duration-300 flex flex-col justify-between ${
                 selectedSystem === 'cyberpunk'
-                  ? 'border-[#ffee00] dark:bg-[#0d1117] bg-[#ffffff] shadow-[0_0_15px_rgba(255,238,0,0.35)] translate-y-[-2px]'
-                  : 'dark:border-[#21262d] border-[#d0d7de] dark:bg-[#08090a] bg-[#f4f6f8] opacity-70 hover:opacity-100 hover:border-[#ffee00]'
+                  ? 'border-[#e60037] dark:bg-[#180a0e] bg-[#ffffff] shadow-[0_0_15px_rgba(230,0,55,0.35)] translate-y-[-2px]'
+                  : 'dark:border-[#2d1218] border-[#d0d7de] dark:bg-[#090507] bg-[#f4ecee] opacity-70 hover:opacity-100 hover:border-[#e60037]'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="w-8 h-8 rounded-sm bg-[#ffee00] text-[#0d0d0d] flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-sm bg-[#e60037] text-white flex items-center justify-center font-bold">
                   <Terminal className="w-4 h-4" />
                 </div>
-                <span className="text-[10px] font-typewriter font-bold text-[#ffee00]">1D10 EXPLODE</span>
+                <span className="text-[10px] font-typewriter font-bold text-[#ff2a55]">1D10 EXPLODE</span>
               </div>
               <div>
-                <h3 className="font-display font-bold text-base uppercase text-[#ffee00]">Cyberpunk RED</h3>
-                <p className="text-[11px] font-typewriter dark:text-[#8b949e] text-[#57606a] mt-1 leading-snug">
+                <h3 className="font-display font-bold text-base uppercase text-[#ff2a55]">Cyberpunk RED</h3>
+                <p className="text-[11px] font-typewriter dark:text-[#a88a92] text-[#57606a] mt-1 leading-snug">
                   High-tech street combat, Netrunning & Cyberware.
                 </p>
               </div>
@@ -165,7 +165,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               onClick={() => onSelectGameAndRole(selectedSystem, 'keeper')}
               className={`group relative text-left p-6 rounded-sm border-2 transition-all duration-300 btn-retro cursor-pointer ${
                 selectedSystem === 'cyberpunk'
-                  ? 'system-card-cyberpunk dark:border-[#21262d] border-[#0d0d0d] dark:bg-[#0d1117] bg-[#ffffff] hover:border-[#ffee00]'
+                  ? 'system-card-cyberpunk dark:border-[#2d1218] border-[#0d0d0d] dark:bg-[#180a0e] bg-[#ffffff] hover:border-[#e60037]'
                   : selectedSystem === 'pf2e'
                   ? 'system-card-pf2e dark:border-[#1e293b] border-[#b89320] dark:bg-[#161c28] bg-[#ffffff] hover:border-[#d4af37]'
                   : 'system-card-coc dark:border-[#2D3732] border-[#1C201D] dark:bg-[#1C2320] bg-[#EBE4D4] hover:border-[#E65A2B]'
@@ -174,7 +174,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               <div className="flex items-start gap-4">
                 <div className={`w-12 h-12 rounded-sm border-2 flex items-center justify-center text-[#F4EFE3] shadow-retro-sm shrink-0 ${
                   selectedSystem === 'cyberpunk'
-                    ? 'bg-[#ffee00] text-[#0d0d0d] border-black'
+                    ? 'bg-[#e60037] text-white border-black'
                     : selectedSystem === 'pf2e'
                     ? 'bg-[#d4af37] text-[#10141d] border-black'
                     : 'bg-[#E65A2B] text-white border-[#090C0A]'
@@ -214,7 +214,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
                 className="mt-5 py-2.5 px-3 rounded-sm text-center font-display font-bold text-xs uppercase tracking-wider border-2 border-black shadow-retro btn-retro"
                 style={{
                   backgroundColor: activeSystemConfig.accentColor,
-                  color: selectedSystem === 'cyberpunk' || selectedSystem === 'pf2e' ? '#08090a' : '#ffffff'
+                  color: '#ffffff'
                 }}
               >
                 Launch {activeSystemConfig.roleLabels.gmSanctum} →
@@ -226,7 +226,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               onClick={() => onSelectGameAndRole(selectedSystem, 'investigator')}
               className={`group relative text-left p-6 rounded-sm border-2 transition-all duration-300 btn-retro cursor-pointer ${
                 selectedSystem === 'cyberpunk'
-                  ? 'system-card-cyberpunk dark:border-[#21262d] border-[#0d0d0d] dark:bg-[#0d1117] bg-[#ffffff] hover:border-[#00f0ff]'
+                  ? 'system-card-cyberpunk dark:border-[#2d1218] border-[#0d0d0d] dark:bg-[#180a0e] bg-[#ffffff] hover:border-[#ff2a55]'
                   : selectedSystem === 'pf2e'
                   ? 'system-card-pf2e dark:border-[#1e293b] border-[#3b82f6] dark:bg-[#161c28] bg-[#ffffff] hover:border-[#3b82f6]'
                   : 'system-card-coc dark:border-[#2D3732] border-[#1C201D] dark:bg-[#1C2320] bg-[#EBE4D4] hover:border-[#2A6B60]'
@@ -235,7 +235,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
               <div className="flex items-start gap-4">
                 <div className={`w-12 h-12 rounded-sm border-2 flex items-center justify-center text-white shadow-retro-sm shrink-0 ${
                   selectedSystem === 'cyberpunk'
-                    ? 'bg-[#00f0ff] text-[#0d0d0d] border-black'
+                    ? 'bg-[#ff2a55] text-white border-black'
                     : selectedSystem === 'pf2e'
                     ? 'bg-[#3b82f6] text-white border-black'
                     : 'bg-[#2A6B60] text-white border-[#090C0A]'
@@ -280,7 +280,7 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
                 className="mt-5 py-2.5 px-3 rounded-sm text-center font-display font-bold text-xs uppercase tracking-wider border-2 border-black shadow-retro btn-retro"
                 style={{
                   backgroundColor: activeSystemConfig.accentAlt,
-                  color: selectedSystem === 'cyberpunk' ? '#08090a' : '#ffffff'
+                  color: '#ffffff'
                 }}
               >
                 Open {activeSystemConfig.roleLabels.playerDossier} →

@@ -103,8 +103,8 @@ export const GAME_SYSTEMS = {
       importPdf: "Import Character Sheet"
     },
     themeClass: 'theme-cyberpunk',
-    accentColor: '#ffee00',
-    accentAlt: '#00f0ff',
+    accentColor: '#e60037',
+    accentAlt: '#ff2a55',
     diceType: 'D10 Exploding',
     timeLabel: 'Night City Cyber-Clock',
     initiativeLabel: '1d10 + REF + Combat Awareness',
