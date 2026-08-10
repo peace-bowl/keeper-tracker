@@ -3,8 +3,11 @@
 [![React](https://img.shields.io/badge/React-19.x-blue.svg)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8.x-646CFF.svg)](https://vitejs.dev)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38B2AC.svg)](https://tailwindcss.com)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-brightgreen.svg)](https://peace-bowl.github.io/keeper-tracker/)
 
 **Keeper Tracker** is an atmospheric, multi-system Game Master (GM) dashboard and player companion designed for tabletop roleplaying games. Built specifically for **Call of Cthulhu (7th Edition)**, **Cyberpunk RED**, and **Pathfinder (2nd Edition)**, it provides real-time character tracking, automated dice rolling, an operational time chronometer, dynamic combat initiative management, and instant PDF character sheet import.
+
+🚀 **Live App**: [https://peace-bowl.github.io/keeper-tracker/](https://peace-bowl.github.io/keeper-tracker/)
 
 ---
 
