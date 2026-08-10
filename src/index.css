@@ -280,24 +280,35 @@
   border-color: #d4af37 !important;
 }
 
-/* Cyberpunk Scanline Background */
-.bg-cyber-scanline {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 240, 255, 0.04) 50%,
-    rgba(0, 240, 255, 0.04)
-  );
-  background-size: 100% 4px;
+/* Glassmorphism & System Theme Utilities */
+.glass-panel-dark {
+  background: rgba(28, 35, 32, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(235, 230, 219, 0.1);
 }
 
-/* Pathfinder Ornate Metal Grid */
-.bg-pf2e-grid {
-  background-size: 32px 32px;
-  background-image:
-    linear-gradient(to right, rgba(212, 175, 55, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+.glass-panel-light {
+  background: rgba(239, 234, 216, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(28, 32, 29, 0.12);
+}
+
+/* System-specific Glow & Border Highlights */
+.border-glow-coc {
+  box-shadow: 0 0 15px rgba(230, 90, 43, 0.35);
+  border-color: #E65A2B !important;
+}
+
+.border-glow-cyberpunk {
+  box-shadow: 0 0 18px rgba(255, 238, 0, 0.45);
+  border-color: #ffee00 !important;
+}
+
+.border-glow-pf2e {
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.4);
+  border-color: #d4af37 !important;
 }
 
 /* Glitch pulse animation for Cyberpunk elements */
