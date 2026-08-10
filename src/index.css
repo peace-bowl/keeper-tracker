@@ -1,0 +1,316 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Hide native number input spinners across browsers */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+.font-display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+.font-typewriter {
+  font-family: 'Courier Prime', monospace;
+}
+
+/* 1960s Tactile Offset Shadow Utilities */
+.shadow-retro-sm {
+  box-shadow: 2px 2px 0px #090C0A;
+}
+
+.shadow-retro {
+  box-shadow: 3px 3px 0px #090C0A;
+}
+
+.shadow-retro-light {
+  box-shadow: 3px 3px 0px #1C201D;
+}
+
+.shadow-retro-orange {
+  box-shadow: 3px 3px 0px #E65A2B;
+}
+
+.shadow-retro-ochre {
+  box-shadow: 3px 3px 0px #D99F26;
+}
+
+.shadow-retro-teal {
+  box-shadow: 3px 3px 0px #2A6B60;
+}
+
+.shadow-retro-paper {
+  box-shadow: 3px 3px 0px #1A211D;
+}
+
+/* Tactile retro button click effect */
+.btn-retro {
+  transition: all 0.1s ease;
+  box-shadow: 2px 2px 0px #090C0A;
+}
+.btn-retro:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #090C0A;
+}
+.btn-retro:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #090C0A;
+}
+
+/* Subtle 1960s Grid Pattern for Dark and Light Themes */
+.dark .bg-grid-1960s {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(235, 230, 219, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(235, 230, 219, 0.03) 1px, transparent 1px);
+}
+
+.light .bg-grid-1960s, .bg-grid-1960s-light {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(28, 32, 29, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(28, 32, 29, 0.05) 1px, transparent 1px);
+}
+
+/* 1960s Classified Stamp Badge */
+.stamp-badge {
+  display: inline-block;
+  font-family: 'Courier Prime', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
+  border-width: 1.5px;
+  border-style: solid;
+  border-radius: 2px;
+  transform: rotate(-1deg);
+}
+
+/* Subtle, clean retro scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #141816;
+}
+.light ::-webkit-scrollbar-track {
+  background: #F5F1E6;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #2D3732;
+  border: 1px solid #1C2320;
+}
+.light ::-webkit-scrollbar-thumb {
+  background: #C8BFB0;
+  border: 1px solid #A59B8B;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E65A2B;
+}
+
+@keyframes bounceShort {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-bounce-short {
+  animation: bounceShort 1.5s infinite ease-in-out;
+}
+
+/* ─── Role card glow-from-behind pulses ─────────────────────────────────── */
+@keyframes glowPulseOrange {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px #E65A2B,
+      0 0 18px 4px rgba(230, 90, 43, 0.55),
+      0 0 40px 10px rgba(230, 90, 43, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #E65A2B,
+      0 0 28px 8px rgba(230, 90, 43, 0.75),
+      0 0 60px 18px rgba(230, 90, 43, 0.35);
+  }
+}
+
+@keyframes glowPulseTeal {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px #2A6B60,
+      0 0 18px 4px rgba(42, 107, 96, 0.55),
+      0 0 40px 10px rgba(42, 107, 96, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #2A6B60,
+      0 0 28px 8px rgba(42, 107, 96, 0.75),
+      0 0 60px 18px rgba(42, 107, 96, 0.35);
+  }
+}
+
+.role-card-keeper:hover {
+  animation: glowPulseOrange 1.8s ease-in-out infinite;
+  border-color: #E65A2B !important;
+}
+
+.role-card-investigator:hover {
+  animation: glowPulseTeal 1.8s ease-in-out infinite;
+  border-color: #2A6B60 !important;
+}
+
+/* ─── Tentacle wiggle animations ─────────────────────────────────────────── */
+@keyframes tentacleWave1 {
+  0%   { d: path("M0,0 C8,-12 18,6 28,-8 C38,-22 48,-4 58,-16"); }
+  25%  { d: path("M0,0 C10,10 20,-8 30,6 C40,20 50,2 58,14"); }
+  50%  { d: path("M0,0 C6,14 16,-6 26,10 C36,26 46,8 58,20"); }
+  75%  { d: path("M0,0 C12,-10 22,8 32,-6 C42,-20 52,-2 58,-14"); }
+  100% { d: path("M0,0 C8,-12 18,6 28,-8 C38,-22 48,-4 58,-16"); }
+}
+
+@keyframes tentacleWave2 {
+  0%   { d: path("M0,0 C-6,14 -16,-6 -26,10 C-36,26 -46,8 -58,20"); }
+  25%  { d: path("M0,0 C-10,-10 -20,8 -30,-6 C-40,-20 -50,-2 -58,-14"); }
+  50%  { d: path("M0,0 C-8,12 -18,-6 -28,8 C-38,22 -48,4 -58,16"); }
+  75%  { d: path("M0,0 C-12,6 -22,-14 -32,4 C-42,24 -52,6 -58,18"); }
+  100% { d: path("M0,0 C-6,14 -16,-6 -26,10 C-36,26 -46,8 -58,20"); }
+}
+
+@keyframes tentacleSway {
+  0%   { transform: rotate(0deg) scaleY(1); }
+  25%  { transform: rotate(6deg) scaleY(1.05); }
+  50%  { transform: rotate(-4deg) scaleY(0.95); }
+  75%  { transform: rotate(8deg) scaleY(1.08); }
+  100% { transform: rotate(0deg) scaleY(1); }
+}
+
+@keyframes tentacleSway2 {
+  0%   { transform: rotate(0deg) scaleY(1); }
+  25%  { transform: rotate(-7deg) scaleY(1.04); }
+  50%  { transform: rotate(5deg) scaleY(0.97); }
+  75%  { transform: rotate(-9deg) scaleY(1.06); }
+  100% { transform: rotate(0deg) scaleY(1); }
+}
+
+@keyframes tentacleSway3 {
+  0%   { transform: rotate(0deg) scaleY(1); }
+  33%  { transform: rotate(10deg) scaleY(1.07); }
+  66%  { transform: rotate(-6deg) scaleY(0.94); }
+  100% { transform: rotate(0deg) scaleY(1); }
+}
+
+@keyframes tentacleFade {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.85; }
+}
+
+/* ─── Cyberpunk RED Glow & Scanline Keyframes ────────────────────────── */
+@keyframes glowPulseYellow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px #ffee00,
+      0 0 20px 5px rgba(255, 238, 0, 0.65),
+      0 0 45px 12px rgba(255, 238, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #ffee00,
+      0 0 32px 10px rgba(255, 238, 0, 0.85),
+      0 0 65px 20px rgba(255, 238, 0, 0.45);
+  }
+}
+
+@keyframes glowPulseCyan {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px #00f0ff,
+      0 0 20px 5px rgba(0, 240, 255, 0.65),
+      0 0 45px 12px rgba(0, 240, 255, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #00f0ff,
+      0 0 32px 10px rgba(0, 240, 255, 0.85),
+      0 0 65px 20px rgba(0, 240, 255, 0.45);
+  }
+}
+
+/* ─── Pathfinder 2e Gold & Sapphire Glow Keyframes ────────────────────── */
+@keyframes glowPulseGold {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px #d4af37,
+      0 0 20px 5px rgba(212, 175, 55, 0.6),
+      0 0 45px 12px rgba(212, 175, 55, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px #d4af37,
+      0 0 32px 10px rgba(212, 175, 55, 0.8),
+      0 0 65px 20px rgba(212, 175, 55, 0.4);
+  }
+}
+
+.system-card-coc:hover {
+  animation: glowPulseOrange 1.8s ease-in-out infinite;
+  border-color: #E65A2B !important;
+}
+
+.system-card-cyberpunk:hover {
+  animation: glowPulseYellow 1.8s ease-in-out infinite;
+  border-color: #ffee00 !important;
+}
+
+.system-card-pf2e:hover {
+  animation: glowPulseGold 1.8s ease-in-out infinite;
+  border-color: #d4af37 !important;
+}
+
+/* Cyberpunk Scanline Background */
+.bg-cyber-scanline {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 240, 255, 0.04) 50%,
+    rgba(0, 240, 255, 0.04)
+  );
+  background-size: 100% 4px;
+}
+
+/* Pathfinder Ornate Metal Grid */
+.bg-pf2e-grid {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right, rgba(212, 175, 55, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+}
+
+/* Glitch pulse animation for Cyberpunk elements */
+@keyframes glitchFlicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.4; transform: skewX(-2deg); }
+  94% { opacity: 1; transform: skewX(0deg); }
+  97% { opacity: 0.7; }
+  98% { opacity: 1; }
+}
+
+.animate-glitch {
+  animation: glitchFlicker 4s infinite ease-in-out;
+}
+
