@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@400;600;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Courier+Prime:wght@400;700&display=swap');
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
@@ -14,12 +16,23 @@
     -webkit-appearance: none;
     margin: 0;
   }
-  input[type="number"] {
-    -moz-appearance: textfield;
-    appearance: textfield;
+  button, input, select, textarea {
+    touch-action: manipulation;
   }
 }
 
+/* Hide scrollbars for clean horizontal scroll strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FONT UTILITIES
+═══════════════════════════════════════════════════════════════ */
 .font-display {
   font-family: 'Space Grotesk', system-ui, sans-serif;
 }
@@ -28,7 +41,20 @@
   font-family: 'Courier Prime', monospace;
 }
 
-/* 1960s Tactile Offset Shadow Utilities */
+/* Cyberpunk RED: digital terminal monospace */
+.font-cyber {
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+}
+
+/* Pathfinder 2e: Roman inscriptional display */
+.font-chronicle {
+  font-family: 'Cinzel', 'Georgia', serif;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CALL OF CTHULHU — Retro 1960s tactile shadows
+═══════════════════════════════════════════════════════════════ */
 .shadow-retro-sm {
   box-shadow: 2px 2px 0px #090C0A;
 }
@@ -71,7 +97,7 @@
   box-shadow: 1px 1px 0px #090C0A;
 }
 
-/* Subtle 1960s Grid Pattern for Dark and Light Themes */
+/* Subtle 1960s Grid Pattern */
 .dark .bg-grid-1960s {
   background-size: 24px 24px;
   background-image: 
@@ -100,11 +126,7 @@
   transform: rotate(-1deg);
 }
 
-/* Subtle, clean retro scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* CoC scrollbar */
 .dark ::-webkit-scrollbar-track {
   background: #141816;
 }
@@ -122,7 +144,350 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #E65A2B;
 }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
+/* ═══════════════════════════════════════════════════════════════
+   CYBERPUNK RED — Neural terminal / HUD aesthetic
+═══════════════════════════════════════════════════════════════ */
+
+/* Background: scanline texture */
+@keyframes scanlineScroll {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100px; }
+}
+
+.bg-cyber-scanline {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 229, 255, 0.012) 2px,
+      rgba(0, 229, 255, 0.012) 4px
+    );
+  animation: scanlineScroll 8s linear infinite;
+}
+
+/* ── Cyberpunk panels ── */
+.cyber-panel {
+  background: #0d1520;
+  border: 1px solid #1a2e4a;
+  border-left: 3px solid #00e5ff;
+  border-radius: 0;
+  position: relative;
+}
+
+.cyber-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #00e5ff 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.cyber-panel-red {
+  background: #0d1520;
+  border: 1px solid #1a2e4a;
+  border-left: 3px solid #e60037;
+  border-radius: 0;
+  position: relative;
+}
+
+.cyber-panel-red::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #e60037 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Cyberpunk button: sharp, neon-outlined ── */
+.btn-cyber {
+  transition: all 0.12s ease;
+  border-radius: 0;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.btn-cyber:hover {
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.5), 0 0 2px rgba(0, 229, 255, 0.8);
+}
+
+.btn-cyber:active {
+  transform: scale(0.97);
+}
+
+.btn-cyber-red:hover {
+  box-shadow: 0 0 8px rgba(230, 0, 55, 0.5), 0 0 2px rgba(230, 0, 55, 0.8);
+}
+
+/* ── Cyberpunk stamp badge ── */
+.cyber-badge {
+  display: inline-block;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid #00e5ff;
+  border-radius: 0;
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.06);
+  font-size: 10px;
+  transform: none;
+}
+
+/* ── Cyberpunk glow animations ── */
+@keyframes cyberGlowCyan {
+  0%, 100% {
+    box-shadow: 0 0 0 1px #00e5ff, 0 0 12px 2px rgba(0, 229, 255, 0.4), 0 0 30px 6px rgba(0, 229, 255, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 1px #00e5ff, 0 0 20px 6px rgba(0, 229, 255, 0.6), 0 0 50px 12px rgba(0, 229, 255, 0.25);
+  }
+}
+
+@keyframes cyberGlowRed {
+  0%, 100% {
+    box-shadow: 0 0 0 1px #e60037, 0 0 12px 2px rgba(230, 0, 55, 0.4), 0 0 30px 6px rgba(230, 0, 55, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 1px #e60037, 0 0 20px 6px rgba(230, 0, 55, 0.6), 0 0 50px 12px rgba(230, 0, 55, 0.25);
+  }
+}
+
+@keyframes textFlicker {
+  0%, 98%, 100% { opacity: 1; }
+  99% { opacity: 0.5; }
+}
+
+.animate-cyber-glow-cyan {
+  animation: cyberGlowCyan 2.5s ease-in-out infinite;
+}
+
+.animate-cyber-glow-red {
+  animation: cyberGlowRed 2.5s ease-in-out infinite;
+}
+
+.animate-flicker {
+  animation: textFlicker 6s ease-in-out infinite;
+}
+
+/* ── Cyberpunk scrollbars ── */
+[data-game-system="cyberpunk"] ::-webkit-scrollbar-track {
+  background: #060910;
+}
+[data-game-system="cyberpunk"] ::-webkit-scrollbar-thumb {
+  background: #1a2e4a;
+  border: 1px solid #00e5ff;
+}
+[data-game-system="cyberpunk"] ::-webkit-scrollbar-thumb:hover {
+  background: #00e5ff;
+}
+
+/* ── Cyberpunk data-game-system scoped globals ── */
+[data-game-system="cyberpunk"] ::selection {
+  background: #e60037;
+  color: white;
+}
+
+/* ── Cyberpunk HEX decorative corner mark ── */
+.cyber-corner::after {
+  content: '▶';
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  color: #00e5ff;
+  opacity: 0.25;
+  font-size: 8px;
+  pointer-events: none;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   PATHFINDER 2e — Illuminated chronicle / heraldic tome
+═══════════════════════════════════════════════════════════════ */
+
+/* Background: parchment hatching texture */
+.bg-pf2e-parchment {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 18px,
+      rgba(200, 168, 75, 0.028) 18px,
+      rgba(200, 168, 75, 0.028) 19px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 18px,
+      rgba(200, 168, 75, 0.018) 18px,
+      rgba(200, 168, 75, 0.018) 19px
+    );
+}
+
+/* Also keep bg-pf2e-grid as alias */
+.bg-pf2e-grid {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 18px,
+      rgba(200, 168, 75, 0.028) 18px,
+      rgba(200, 168, 75, 0.028) 19px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 18px,
+      rgba(200, 168, 75, 0.018) 18px,
+      rgba(200, 168, 75, 0.018) 19px
+    );
+}
+
+/* ── Pathfinder panels ── */
+.pf2e-panel {
+  background: #1e1508;
+  border: 1px solid #3d2e1a;
+  border-top: 2px solid #c8a84b;
+  border-radius: 2px;
+  position: relative;
+}
+
+/* Corner ornament via pseudo-elements */
+.pf2e-panel::before {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 10px; height: 10px;
+  border-top: 1.5px solid #c8a84b;
+  border-left: 1.5px solid #c8a84b;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.pf2e-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 3px; right: 3px;
+  width: 10px; height: 10px;
+  border-bottom: 1.5px solid #c8a84b;
+  border-right: 1.5px solid #c8a84b;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ── Pathfinder button ── */
+.btn-pf2e {
+  transition: all 0.15s ease;
+  border-radius: 2px;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-pf2e:hover {
+  box-shadow: 0 0 10px rgba(200, 168, 75, 0.4), 0 0 3px rgba(200, 168, 75, 0.7);
+}
+
+/* ── Pathfinder stamp badge ── */
+.pf2e-badge {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid #c8a84b;
+  border-radius: 1px;
+  color: #c8a84b;
+  background: rgba(200, 168, 75, 0.07);
+  font-size: 10px;
+  transform: none;
+}
+
+/* ── Pathfinder glow / shimmer ── */
+@keyframes goldGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px #c8a84b, 0 0 14px 3px rgba(200, 168, 75, 0.35), 0 0 35px 8px rgba(200, 168, 75, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 1px #c8a84b, 0 0 22px 6px rgba(200, 168, 75, 0.5), 0 0 55px 14px rgba(200, 168, 75, 0.2);
+  }
+}
+
+@keyframes crimsonGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px #8b2020, 0 0 14px 3px rgba(139, 32, 32, 0.4), 0 0 35px 8px rgba(139, 32, 32, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 1px #8b2020, 0 0 22px 6px rgba(139, 32, 32, 0.55), 0 0 55px 14px rgba(139, 32, 32, 0.22);
+  }
+}
+
+.animate-gold-glow {
+  animation: goldGlow 2.8s ease-in-out infinite;
+}
+
+.animate-crimson-glow {
+  animation: crimsonGlow 2.8s ease-in-out infinite;
+}
+
+/* ── Pathfinder scrollbars ── */
+[data-game-system="pf2e"] ::-webkit-scrollbar-track {
+  background: #120d07;
+}
+[data-game-system="pf2e"] ::-webkit-scrollbar-thumb {
+  background: #3d2e1a;
+  border: 1px solid #c8a84b;
+}
+[data-game-system="pf2e"] ::-webkit-scrollbar-thumb:hover {
+  background: #c8a84b;
+}
+
+[data-game-system="pf2e"] ::selection {
+  background: #8b2020;
+  color: #f5e6c8;
+}
+
+/* ── Pathfinder decorative divider ── */
+.pf2e-divider {
+  position: relative;
+  border: none;
+  border-top: 1px solid #3d2e1a;
+  margin: 0;
+}
+
+.pf2e-divider::before {
+  content: '❖';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: inherit;
+  color: #c8a84b;
+  font-size: 10px;
+  padding: 0 6px;
+  opacity: 0.6;
+}
+
+/* ── Pathfinder stat value style (Cinzel numerals) ── */
+[data-game-system="pf2e"] .stat-value {
+  font-family: 'Cinzel', serif;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARED GLOW KEYFRAMES (legacy / CoC system cards)
+═══════════════════════════════════════════════════════════════ */
 @keyframes bounceShort {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
@@ -132,7 +497,6 @@
   animation: bounceShort 1.5s infinite ease-in-out;
 }
 
-/* ─── Role card glow-from-behind pulses ─────────────────────────────────── */
 @keyframes glowPulseOrange {
   0%, 100% {
     box-shadow:
@@ -173,7 +537,7 @@
   border-color: #2A6B60 !important;
 }
 
-/* ─── Tentacle wiggle animations ─────────────────────────────────────────── */
+/* ── Tentacle animations (CoC) ─────────────────────────────── */
 @keyframes tentacleWave1 {
   0%   { d: path("M0,0 C8,-12 18,6 28,-8 C38,-22 48,-4 58,-16"); }
   25%  { d: path("M0,0 C10,10 20,-8 30,6 C40,20 50,2 58,14"); }
@@ -218,7 +582,7 @@
   50%       { opacity: 0.85; }
 }
 
-/* ─── Cyberpunk RED Glow & Scanline Keyframes ────────────────────────── */
+/* ── Cyberpunk RED system card glow ─────────────────────────── */
 @keyframes glowPulseRed {
   0%, 100% {
     box-shadow:
@@ -249,7 +613,7 @@
   }
 }
 
-/* ─── Pathfinder 2e Gold & Sapphire Glow Keyframes ────────────────────── */
+/* ── Pathfinder 2e system card glow ─────────────────────────── */
 @keyframes glowPulseGold {
   0%, 100% {
     box-shadow:
@@ -280,7 +644,7 @@
   border-color: #d4af37 !important;
 }
 
-/* Glassmorphism & System Theme Utilities */
+/* ── Glassmorphism ───────────────────────────────────────────── */
 .glass-panel-dark {
   background: rgba(28, 35, 32, 0.75);
   backdrop-filter: blur(12px);
@@ -295,7 +659,7 @@
   border: 1px solid rgba(28, 32, 29, 0.12);
 }
 
-/* System-specific Glow & Border Highlights */
+/* ── System glow borders ─────────────────────────────────────── */
 .border-glow-coc {
   box-shadow: 0 0 15px rgba(230, 90, 43, 0.35);
   border-color: #E65A2B !important;
@@ -311,7 +675,7 @@
   border-color: #d4af37 !important;
 }
 
-/* Glitch pulse animation for Cyberpunk elements */
+/* ── Glitch flicker (cyberpunk) ──────────────────────────────── */
 @keyframes glitchFlicker {
   0%, 100% { opacity: 1; }
   92% { opacity: 1; }
@@ -325,3 +689,18 @@
   animation: glitchFlicker 4s infinite ease-in-out;
 }
 
+/* ── Pathfinder ornament corner divider ──────────────────────── */
+@keyframes goldShimmer {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.pf2e-ornament {
+  text-align: center;
+  color: #c8a84b;
+  opacity: 0.5;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  font-family: 'Cinzel', serif;
+  animation: goldShimmer 4s ease-in-out infinite;
+}

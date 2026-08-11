@@ -11,11 +11,19 @@ import SystemAndRoleSelectScreen from './components/SystemAndRoleSelectScreen';
 import InvestigatorApp from './components/InvestigatorApp';
 import ErrorBoundary from './components/ErrorBoundary';
 import SyncModal from './components/SyncModal';
-import { AlertTriangle, X } from 'lucide-react';
+import MobileNav from './components/MobileNav';
+import { AlertTriangle, X, Users, Dices, Clock, Swords } from 'lucide-react';
 import { INITIAL_CAMPAIGN } from './data/defaultCampaign';
 import { GAME_SYSTEMS } from './data/gameSystems';
 import { loadAndMigrateCampaign } from './utils/schemaMigration';
 import { useFirebaseSync } from './utils/useFirebaseSync';
+
+const KEEPER_MOBILE_TABS = [
+  { id: 'roster',  label: 'Roster',  icon: Users  },
+  { id: 'dice',    label: 'Dice',    icon: Dices  },
+  { id: 'time',    label: 'Time',    icon: Clock  },
+  { id: 'combat',  label: 'Combat',  icon: Swords },
+];
 
 const LOCAL_STORAGE_KEY = 'coc_7e_gm_dashboard_state_v1';
 const ROLE_STORAGE_KEY = 'coc_7e_selected_role';
@@ -138,6 +146,7 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [diceLog, setDiceLog] = useState([]);
   const [expiredTimers, setExpiredTimers] = useState([]);
+  const [mobileKeeperPage, setMobileKeeperPage] = useState('roster');
 
   const [theme, setTheme] = useState(() => {
     try {
@@ -457,12 +466,12 @@ export default function App() {
 
   // Keeper / GM mode → full GM dashboard
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${
       selectedGameSystem === 'cyberpunk'
-        ? 'dark:bg-[#090507] bg-[#f4ecee] dark:text-[#f0f6fc] text-[#0d0d0d] bg-cyber-scanline selection:bg-[#e60037] selection:text-white'
+        ? 'font-cyber dark:bg-[#060910] bg-[#0a0d12] dark:text-[#c8d8e8] text-[#c8d8e8] bg-cyber-scanline'
         : selectedGameSystem === 'pf2e'
-        ? 'dark:bg-[#10141d] bg-[#f4f1ea] dark:text-[#e2e8f0] text-[#1e293b] bg-pf2e-grid selection:bg-[#d4af37] selection:text-black'
-        : 'dark:bg-[#141816] bg-[#F5F1E6] bg-grid-1960s dark:text-[#EBE6DB] text-[#1C201D] selection:bg-[#E65A2B] selection:text-white'
+        ? 'font-sans dark:bg-[#120d07] bg-[#f7f0e4] dark:text-[#e8d5b0] text-[#2a1f0f] bg-pf2e-parchment'
+        : 'font-sans dark:bg-[#141816] bg-[#F5F1E6] bg-grid-1960s dark:text-[#EBE6DB] text-[#1C201D] selection:bg-[#E65A2B] selection:text-white'
     }`}>
       {/* Storage Migration / Fallback Warning Banner */}
       {storageNotice && (
@@ -480,6 +489,7 @@ export default function App() {
           </button>
         </div>
       )}
+
       {/* App Header */}
       <Header
         gameSystem={selectedGameSystem}
@@ -499,8 +509,72 @@ export default function App() {
         onOpenSync={() => setIsSyncModalOpen(true)}
       />
 
-      {/* Main Workspace Layout */}
-      <main className="flex-1 p-3 sm:p-4 max-w-[1800px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* ────────────────────────────────────────────────────────────────── */}
+      {/* MOBILE LAYOUT — below lg breakpoint, one page at a time                */}
+      {/* ────────────────────────────────────────────────────────────────── */}
+      <div className="flex-1 lg:hidden overflow-y-auto pb-16">
+        <div className="p-3 space-y-4">
+          {mobileKeeperPage === 'roster' && (
+            <>
+              <CharacterManager
+                gameSystem={selectedGameSystem}
+                characters={campaign.characters}
+                activeCharacterId={activeCharacterId}
+                onSelectCharacter={setActiveCharacterId}
+                onAddCharacter={handleAddCharacter}
+              />
+              <CharacterSheet
+                gameSystem={selectedGameSystem}
+                character={activeCharacter}
+                onUpdateCharacter={handleUpdateCharacter}
+                onDeleteCharacter={handleDeleteCharacter}
+                onTriggerRoll={handleTriggerRoll}
+              />
+            </>
+          )}
+          {mobileKeeperPage === 'dice' && (
+            <DiceConsole
+              gameSystem={selectedGameSystem}
+              diceLog={diceLog}
+              onAddDiceLog={(entry) => setDiceLog((prev) => [entry, ...prev])}
+              onClearDiceLog={() => setDiceLog([])}
+            />
+          )}
+          {mobileKeeperPage === 'time' && (
+            <TimeTracker
+              gameSystem={selectedGameSystem}
+              timeState={campaign.timeState}
+              timers={campaign.timers || []}
+              characters={campaign.characters}
+              onAdvanceTime={handleAdvanceTime}
+              onSetDateTime={handleSetDateTime}
+              onAddTimer={handleAddTimer}
+              onDeleteTimer={handleDeleteTimer}
+            />
+          )}
+          {mobileKeeperPage === 'combat' && (
+            <CombatTracker
+              gameSystem={selectedGameSystem}
+              combatState={campaign.combat || { round: 1, activeTurnIndex: 0, combatants: [] }}
+              characters={campaign.characters}
+              activeCharacterId={activeCharacterId}
+              onSelectCharacter={setActiveCharacterId}
+              onUpdateCombatant={handleUpdateCombatant}
+              onNextTurn={handleNextTurn}
+              onPrevTurn={handlePrevTurn}
+              onResetCombat={handleResetCombat}
+              onAddCombatant={handleAddCombatant}
+              onRemoveCombatant={handleRemoveCombatant}
+              onClearAllCombatants={handleClearAllCombatants}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* ────────────────────────────────────────────────────────────────── */}
+      {/* DESKTOP LAYOUT — lg and above, unchanged 12-col grid                     */}
+      {/* ────────────────────────────────────────────────────────────────── */}
+      <main className="hidden lg:grid flex-1 p-3 sm:p-4 max-w-[1800px] w-full mx-auto grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left / Center Main Pane: Character Sheet Manager */}
         <section className={`space-y-4 transition-all ${
           isSidebarOpen ? 'lg:col-span-8 xl:col-span-8' : 'lg:col-span-12'
@@ -582,6 +656,7 @@ export default function App() {
         onDismiss={handleDismissTimerAlert}
         onExtend={handleExtendTimer}
       />
+
       {/* Sync Room Code Modal */}
       <SyncModal
         isOpen={isSyncModalOpen}
@@ -589,6 +664,14 @@ export default function App() {
         roomCode={roomCode}
         onSetRoomCode={setRoomCode}
         syncStatus={syncStatus}
+      />
+
+      {/* Mobile Bottom Navigation */}
+      <MobileNav
+        gameSystem={selectedGameSystem}
+        tabs={KEEPER_MOBILE_TABS}
+        activePage={mobileKeeperPage}
+        onChangePage={setMobileKeeperPage}
       />
     </div>
   );

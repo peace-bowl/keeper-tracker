@@ -1,15 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Sun, Moon, LogOut, Upload, Dices, RotateCcw } from 'lucide-react';
+import { Sun, Moon, LogOut, Upload, Dices, RotateCcw, User, Brain, Swords, FileText } from 'lucide-react';
 import CharacterSheet from './CharacterSheet';
 import DiceConsole from './DiceConsole';
 import CheckRollModal from './CheckRollModal';
+import MobileNav from './MobileNav';
 import logoImg from '../assets/logo.png';
 import { parsePdfInvestigator } from '../utils/pdfParser';
 import { useFirestoreInvestigatorSync } from '../utils/useFirebaseSync';
+import { GAME_SYSTEMS } from '../data/gameSystems';
 
 const INV_STORAGE_KEY = 'coc_7e_investigator_state_v1';
 
+const INVESTIGATOR_MOBILE_TABS = [
+  { id: 'sheet',   label: 'Sheet',   icon: User },
+  { id: 'skills',  label: 'Skills',  icon: Brain },
+  { id: 'attacks', label: 'Attacks', icon: Swords },
+  { id: 'dice',    label: 'Dice',    icon: Dices },
+  { id: 'notes',   label: 'Notes',   icon: FileText },
+];
+
 export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleTheme, onChangeRole, roomCode, initialInvestigator }) {
+  const sysConfig = GAME_SYSTEMS[gameSystem] || GAME_SYSTEMS.coc;
+  const terms = sysConfig.terms || GAME_SYSTEMS.coc.terms;
+
   const [investigator, setInvestigator] = useState(() => {
     if (initialInvestigator) return initialInvestigator;
     try {
@@ -27,6 +40,7 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
 
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
   const [diceLog, setDiceLog] = useState([]);
+  const [mobileInvPage, setMobileInvPage] = useState('sheet');
 
   // Persist investigator with debounce + unload safety
   useEffect(() => {
@@ -124,20 +138,49 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
   return (
     <div className="min-h-screen dark:bg-[#141816] bg-[#F5F1E6] bg-grid-1960s dark:text-[#EBE6DB] text-[#1C201D] flex flex-col font-sans selection:bg-[#E65A2B] selection:text-white transition-colors duration-200">
 
-      {/* Investigator Header — simplified */}
-      <header className="dark:bg-[#1C2320] bg-[#EBE4D4] dark:border-[#090C0A] border-[#1C201D] border-b-2 px-4 py-2.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-retro transition-colors">
+      {/* Player Dossier Header */}
+      <header className={`border-b-2 px-2 py-1.5 sm:px-4 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-4 sticky top-0 z-30 transition-colors ${
+        gameSystem === 'cyberpunk'
+          ? 'bg-[#040710] text-[#c8d8e8] border-[#00e5ff] shadow-[0_2px_20px_rgba(0,229,255,0.15)] font-cyber'
+          : gameSystem === 'pf2e'
+          ? 'dark:bg-[#160f04] bg-[#f0e6d0] dark:text-[#e8d5b0] text-[#2a1f0f] border-[#c8a84b] shadow-[0_2px_16px_rgba(200,168,75,0.12)]'
+          : 'dark:bg-[#1C2320] bg-[#EBE4D4] dark:border-[#090C0A] border-[#1C201D] dark:text-[#EBE6DB] text-[#1C201D] shadow-retro'
+      }`}>
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <img
             src={logoImg}
-            alt="CoC GM Desk Logo"
-            className="w-10 h-10 rounded-sm object-cover border-2 dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm"
+            alt="TTRPG Desk Logo"
+            className={`w-7 h-7 sm:w-10 sm:h-10 object-cover border-2 ${
+              gameSystem === 'cyberpunk'
+                ? 'rounded-none border-[#00e5ff] shadow-[0_0_8px_rgba(0,229,255,0.5)]'
+                : gameSystem === 'pf2e'
+                ? 'rounded-full border-[#c8a84b] shadow-[0_0_8px_rgba(200,168,75,0.4)]'
+                : 'rounded-sm dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm'
+            }`}
           />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="stamp-badge border-[#2A6B60] text-[#2A6B60] text-[10px]">INVESTIGATOR</span>
-              <h1 className="text-sm font-display font-extrabold tracking-wider dark:text-[#F4EFE3] text-[#161B18] uppercase">
-                My Dossier <span className="text-[10px] bg-[#FAF6EE] dark:bg-[#141816] dark:text-[#D99F26] text-[#2A6B60] px-1.5 py-0.5 rounded-sm border dark:border-[#2D3732] border-[#1C201D] font-typewriter">7E</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              {gameSystem === 'cyberpunk' ? (
+                <span className="cyber-badge animate-flicker hidden sm:inline-block">{terms.playerTitle.toUpperCase()}</span>
+              ) : gameSystem === 'pf2e' ? (
+                <span className="pf2e-badge hidden sm:inline-block">{terms.playerTitle.toUpperCase()}</span>
+              ) : (
+                <span className="stamp-badge border-[#2A6B60] text-[#2A6B60] text-[10px] hidden sm:inline-block">INVESTIGATOR</span>
+              )}
+              <h1 className={`text-xs sm:text-sm font-extrabold tracking-wider uppercase ${
+                gameSystem === 'cyberpunk' ? 'font-cyber text-[#00e5ff]'
+                : gameSystem === 'pf2e' ? 'font-chronicle text-[#c8a84b]'
+                : 'font-display dark:text-[#F4EFE3] text-[#161B18]'
+              }`}>
+                MY {terms.dossierTitle.toUpperCase()}{' '}
+                <span className={`text-[9px] sm:text-[10px] px-1 py-0.5 border ${
+                  gameSystem === 'cyberpunk'
+                    ? 'font-cyber bg-[#040710] border-[#00e5ff]/40 text-[#00e5ff]/70'
+                    : gameSystem === 'pf2e'
+                    ? 'font-chronicle bg-[#160f04] border-[#c8a84b]/40 text-[#c8a84b]/70 rounded-sm'
+                    : 'font-typewriter bg-[#FAF6EE] dark:bg-[#141816] dark:text-[#D99F26] text-[#2A6B60] rounded-sm'
+                }`}>{sysConfig.version || '7E'}</span>
               </h1>
             </div>
           </div>
@@ -174,28 +217,62 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
 
       {/* Main Workspace */}
       {investigator ? (
-        <main className="flex-1 p-3 sm:p-4 max-w-[1600px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Character Sheet */}
-          <section className="lg:col-span-8 space-y-4">
-            <CharacterSheet
-              gameSystem={gameSystem}
-              character={investigator}
-              onUpdateCharacter={handleUpdateCharacter}
-              onDeleteCharacter={handleClearInvestigator}
-              onTriggerRoll={handleTriggerRoll}
-            />
-          </section>
+        <>
+          {/* Mobile Page View (below lg breakpoint) */}
+          <div className="flex-1 lg:hidden overflow-y-auto pb-16">
+            <div className="p-3">
+              {mobileInvPage === 'dice' ? (
+                <DiceConsole
+                  gameSystem={gameSystem}
+                  diceLog={diceLog}
+                  onAddDiceLog={(entry) => setDiceLog((prev) => [entry, ...prev])}
+                  onClearDiceLog={() => setDiceLog([])}
+                />
+              ) : (
+                <CharacterSheet
+                  gameSystem={gameSystem}
+                  character={investigator}
+                  onUpdateCharacter={handleUpdateCharacter}
+                  onDeleteCharacter={handleClearInvestigator}
+                  onTriggerRoll={handleTriggerRoll}
+                  mobileTab={mobileInvPage}
+                />
+              )}
+            </div>
+          </div>
 
-          {/* Dice Console Sidebar */}
-          <aside className="lg:col-span-4 space-y-4">
-            <DiceConsole
-              gameSystem={gameSystem}
-              diceLog={diceLog}
-              onAddDiceLog={(entry) => setDiceLog((prev) => [entry, ...prev])}
-              onClearDiceLog={() => setDiceLog([])}
-            />
-          </aside>
-        </main>
+          {/* Desktop Multi-column View (lg breakpoint and above) */}
+          <main className="hidden lg:grid flex-1 p-3 sm:p-4 max-w-[1600px] w-full mx-auto grid-cols-1 lg:grid-cols-12 gap-4">
+            {/* Character Sheet */}
+            <section className="lg:col-span-8 space-y-4">
+              <CharacterSheet
+                gameSystem={gameSystem}
+                character={investigator}
+                onUpdateCharacter={handleUpdateCharacter}
+                onDeleteCharacter={handleClearInvestigator}
+                onTriggerRoll={handleTriggerRoll}
+              />
+            </section>
+
+            {/* Dice Console Sidebar */}
+            <aside className="lg:col-span-4 space-y-4">
+              <DiceConsole
+                gameSystem={gameSystem}
+                diceLog={diceLog}
+                onAddDiceLog={(entry) => setDiceLog((prev) => [entry, ...prev])}
+                onClearDiceLog={() => setDiceLog([])}
+              />
+            </aside>
+          </main>
+
+          {/* Sticky Mobile Bottom Navigation */}
+          <MobileNav
+            gameSystem={gameSystem}
+            tabs={INVESTIGATOR_MOBILE_TABS}
+            activePage={mobileInvPage}
+            onChangePage={setMobileInvPage}
+          />
+        </>
       ) : (
         /* No Investigator Loaded — Prompt to Load or Create */
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-6">
@@ -235,6 +312,7 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
 
       {/* Check Roll Modal */}
       <CheckRollModal
+        gameSystem={gameSystem}
         isOpen={checkRollState.isOpen}
         onClose={() => setCheckRollState((prev) => ({ ...prev, isOpen: false }))}
         targetSkillName={checkRollState.name}

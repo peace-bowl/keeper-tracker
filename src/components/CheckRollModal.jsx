@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dices, X, Sparkles, RotateCcw } from 'lucide-react';
 import { evaluateCoCRoll, evaluateCyberpunkRoll, evaluatePF2eRoll } from '../utils/diceRules';
+import { getStatBreakdown } from '../utils/cocRules';
 import RetroNumberInput from './RetroNumberInput';
 
 export default function CheckRollModal({

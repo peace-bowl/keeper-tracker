@@ -57,30 +57,50 @@ export default function Header({
   };
 
   return (
-    <header className={`border-b-2 px-4 py-2.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-retro transition-colors duration-200 ${
+    <header className={`border-b-2 px-2 py-1.5 sm:px-4 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-4 sticky top-0 z-30 transition-colors duration-200 ${
       gameSystem === 'cyberpunk'
-        ? 'dark:bg-[#0d1117] bg-[#ffffff] dark:text-[#f0f6fc] text-[#0d0d0d] border-[#ffee00]/50 dark:border-[#ffee00]/40'
+        ? 'bg-[#040710] text-[#c8d8e8] border-[#00e5ff] shadow-[0_2px_20px_rgba(0,229,255,0.15)]'
         : gameSystem === 'pf2e'
-        ? 'dark:bg-[#161c28] bg-[#ffffff] dark:text-[#e2e8f0] text-[#1e293b] border-[#d4af37]/50 dark:border-[#d4af37]/40'
-        : 'dark:bg-[#1C2320] bg-[#EBE4D4] dark:border-[#090C0A] border-[#1C201D] dark:text-[#EBE6DB] text-[#1C201D]'
+        ? 'dark:bg-[#160f04] bg-[#f0e6d0] dark:text-[#e8d5b0] text-[#2a1f0f] border-[#c8a84b] shadow-[0_2px_16px_rgba(200,168,75,0.12)]'
+        : 'dark:bg-[#1C2320] bg-[#EBE4D4] dark:border-[#090C0A] border-[#1C201D] dark:text-[#EBE6DB] text-[#1C201D] shadow-retro'
     }`}>
       {/* Title & Brand */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <img
           src={logoImg}
           alt="TTRPG Desk Logo"
-          className="w-10 h-10 rounded-sm object-cover border-2 dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm"
+          className={`w-7 h-7 sm:w-10 sm:h-10 object-cover border-2 ${
+            gameSystem === 'cyberpunk'
+              ? 'rounded-none border-[#00e5ff] shadow-[0_0_8px_rgba(0,229,255,0.5)]'
+              : gameSystem === 'pf2e'
+              ? 'rounded-full border-[#c8a84b] shadow-[0_0_8px_rgba(200,168,75,0.4)]'
+              : 'rounded-sm dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm'
+          }`}
         />
         <div>
-          <div className="flex items-center gap-2">
-            <span className="stamp-badge border-[#E65A2B] text-[#E65A2B]" style={{
-              borderColor: sysConfig.accentColor,
-              color: sysConfig.accentColor
-            }}>
-              {sysConfig.badge}
-            </span>
-            <h1 className="text-sm font-display font-extrabold tracking-wider uppercase">
-              {sysConfig.name} <span className="text-[10px] bg-[#FAF6EE] dark:bg-[#141816] px-1.5 py-0.5 rounded-sm border font-typewriter" style={{ color: sysConfig.accentColor }}>DESK</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            {gameSystem === 'cyberpunk' ? (
+              <span className="cyber-badge animate-flicker hidden sm:inline-block">{sysConfig.badge}</span>
+            ) : gameSystem === 'pf2e' ? (
+              <span className="pf2e-badge hidden sm:inline-block">{sysConfig.badge}</span>
+            ) : (
+              <span className="stamp-badge hidden sm:inline-block" style={{ borderColor: sysConfig.accentColor, color: sysConfig.accentColor }}>
+                {sysConfig.badge}
+              </span>
+            )}
+            <h1 className={`text-xs sm:text-sm font-extrabold tracking-wider uppercase ${
+              gameSystem === 'cyberpunk' ? 'font-cyber text-[#00e5ff]'
+              : gameSystem === 'pf2e' ? 'font-chronicle text-[#c8a84b]'
+              : 'font-display'
+            }`}>
+              {sysConfig.name}{' '}
+              <span className={`text-[9px] sm:text-[10px] px-1 py-0.5 border ${
+                gameSystem === 'cyberpunk'
+                  ? 'font-cyber bg-[#040710] border-[#00e5ff]/40 text-[#00e5ff]/70'
+                  : gameSystem === 'pf2e'
+                  ? 'font-chronicle bg-[#160f04] border-[#c8a84b]/40 text-[#c8a84b]/70 rounded-sm'
+                  : 'font-typewriter bg-[#FAF6EE] dark:bg-[#141816] rounded-sm'
+              }`} style={gameSystem === 'coc' ? { color: sysConfig.accentColor } : {}}>DESK</span>
             </h1>
           </div>
         </div>
@@ -88,28 +108,40 @@ export default function Header({
 
       {/* Game System Switcher Dropdown */}
       {onChangeGameSystem && (
-        <div className="flex items-center gap-1 font-typewriter text-xs">
+        <div className={`flex items-center gap-1 text-xs ${
+          gameSystem === 'cyberpunk' ? 'font-cyber' : gameSystem === 'pf2e' ? 'font-chronicle' : 'font-typewriter'
+        }`}>
           <span className="text-[10px] opacity-70 uppercase font-bold hidden sm:inline">SYSTEM:</span>
           <select
             value={gameSystem}
             onChange={(e) => onChangeGameSystem(e.target.value)}
-            className="px-2 py-1 rounded-sm border-2 font-bold uppercase cursor-pointer"
+            className={`px-1.5 py-0.5 sm:px-2 sm:py-1 border-2 text-[10px] sm:text-xs font-bold uppercase cursor-pointer max-w-[110px] sm:max-w-none ${
+              gameSystem === 'cyberpunk' ? 'rounded-none' : 'rounded-sm'
+            }`}
             style={{
-              backgroundColor: gameSystem === 'cyberpunk' ? '#161b22' : gameSystem === 'pf2e' ? '#10141d' : '#141816',
-              borderColor: sysConfig.accentColor,
-              color: sysConfig.accentColor
+              backgroundColor: gameSystem === 'cyberpunk' ? '#040710' : gameSystem === 'pf2e' ? '#160f04' : '#141816',
+              borderColor: gameSystem === 'cyberpunk' ? '#00e5ff' : gameSystem === 'pf2e' ? '#c8a84b' : sysConfig.accentColor,
+              color: gameSystem === 'cyberpunk' ? '#00e5ff' : gameSystem === 'pf2e' ? '#c8a84b' : sysConfig.accentColor
             }}
           >
-            <option value="coc">Call of Cthulhu 7e</option>
-            <option value="cyberpunk">Cyberpunk RED</option>
+            <option value="coc">CoC 7e</option>
+            <option value="cyberpunk">Cyberpunk</option>
             <option value="pf2e">Pathfinder 2e</option>
           </select>
         </div>
       )}
 
       {/* Center Quick Time & Moon Widget */}
-      <div className="hidden md:flex items-center gap-3 px-3.5 py-1.5 rounded-sm dark:bg-[#141816] bg-[#FAF6EE] dark:border-[#2D3732] border-[#1C201D] border-2 text-xs font-typewriter shadow-retro-sm">
-        <div className="flex items-center gap-1.5 text-[#D99F26]">
+      <div className={`hidden md:flex items-center gap-3 px-3.5 py-1.5 border-2 text-xs ${
+        gameSystem === 'cyberpunk'
+          ? 'font-cyber bg-[#040710] border-[#1a2e4a] text-[#4a6b8a] rounded-none'
+          : gameSystem === 'pf2e'
+          ? 'font-typewriter dark:bg-[#160f04] bg-[#f0e0c4] dark:border-[#3d2e1a] border-[#c8a84b]/40 text-[#7a6040] rounded-sm'
+          : 'font-typewriter dark:bg-[#141816] bg-[#FAF6EE] dark:border-[#2D3732] border-[#1C201D] rounded-sm shadow-retro-sm'
+      }`}>
+        <div className={`flex items-center gap-1.5 ${
+          gameSystem === 'cyberpunk' ? 'text-[#00e5ff]' : gameSystem === 'pf2e' ? 'text-[#c8a84b]' : 'text-[#D99F26]'
+        }`}>
           <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
           <span className="font-bold tracking-wide">
             {currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -119,11 +151,26 @@ export default function Header({
         <div className="flex items-center gap-1.5 font-semibold opacity-80">
           <span>{currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
         </div>
-        <span className="opacity-40">|</span>
-        <div className="flex items-center gap-1.5 text-[#2A6B60]" title={`Moon Phase: ${moonInfo.phaseName}`}>
-          <Moon className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="font-bold">{moonInfo.daysUntilFullMoon === 0 ? 'FULL MOON' : `${moonInfo.daysUntilFullMoon}d TO FULL`}</span>
-        </div>
+        {gameSystem !== 'cyberpunk' && (
+          <>
+            <span className="opacity-40">|</span>
+            <div className={`flex items-center gap-1.5 ${
+              gameSystem === 'pf2e' ? 'text-[#8b2020]' : 'text-[#2A6B60]'
+            }`} title={`Moon Phase: ${moonInfo.phaseName}`}>
+              <Moon className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span className="font-bold">{moonInfo.daysUntilFullMoon === 0 ? 'FULL MOON' : `${moonInfo.daysUntilFullMoon}d TO FULL`}</span>
+            </div>
+          </>
+        )}
+        {gameSystem === 'cyberpunk' && (
+          <>
+            <span className="opacity-40">|</span>
+            <div className="flex items-center gap-1.5 text-[#e60037]" title="Night City">
+              <Zap className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span className="font-bold">NIGHT CITY</span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Action Buttons */}
@@ -181,12 +228,12 @@ export default function Header({
         {/* Sync Indicator */}
         <SyncIndicator syncStatus={syncStatus} onClick={onOpenSync} />
 
-        {/* Sidebar Toggle Button */}
+        {/* Sidebar Toggle Button (Desktop only) */}
         <button
           onClick={onToggleSidebar}
           title={isSidebarOpen ? 'Collapse Side Trackers' : 'Expand Side Trackers'}
           aria-label={isSidebarOpen ? 'Collapse Side Trackers' : 'Expand Side Trackers'}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display uppercase font-bold tracking-wider btn-retro border-2 dark:border-[#090C0A] border-[#1C201D] cursor-pointer ${
+          className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display uppercase font-bold tracking-wider btn-retro border-2 dark:border-[#090C0A] border-[#1C201D] cursor-pointer ${
             isSidebarOpen
               ? 'bg-[#D99F26] text-[#141816]'
               : 'dark:bg-[#252E2A] bg-[#FAF6EE]'

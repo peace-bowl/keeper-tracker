@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dices, Sparkles, Copy, Check, RotateCcw, Zap, Crown } from 'lucide-react';
 import { evaluateCoCRoll, evaluateCyberpunkRoll, evaluatePF2eRoll } from '../utils/diceRules';
 import RetroNumberInput from './RetroNumberInput';
@@ -10,14 +10,29 @@ export default function DiceConsole({
   onClearDiceLog
 }) {
   // Common state
-  const [targetInput, setTargetInput] = useState(50); // Target % for CoC, Target DV for Cyberpunk, Target DC for PF2e
+  const [targetInput, setTargetInput] = useState(gameSystem === 'pf2e' ? 10 : gameSystem === 'cyberpunk' ? 15 : 50);
   const [modifierInput, setModifierInput] = useState(0); // Mod for CP/PF2e, or bonus/penalty for CoC
   const [cocModifier, setCocModifier] = useState('normal'); // 'normal', 'bonus1', 'bonus2', 'penalty1', 'penalty2'
   const [copied, setCopied] = useState(false);
 
+  // Sync state defaults when game system changes
+  useEffect(() => {
+    if (gameSystem === 'pf2e') {
+      setTargetInput(10);
+      setModifierInput(0);
+    } else if (gameSystem === 'cyberpunk') {
+      setTargetInput(15);
+      setModifierInput(0);
+    } else {
+      setTargetInput(50);
+      setModifierInput(0);
+    }
+  }, [gameSystem]);
+
   // System-specific roll handlers
   const handleRollCoC = () => {
-    const target = parseInt(targetInput, 10) || 50;
+    const parsedTarget = parseInt(targetInput, 10);
+    const target = isNaN(parsedTarget) ? 50 : parsedTarget;
 
     const units = Math.floor(Math.random() * 10);
     let numTensDice = 1;
@@ -60,8 +75,10 @@ export default function DiceConsole({
   };
 
   const handleRollCyberpunk = () => {
-    const statSkill = parseInt(modifierInput, 10) || 10;
-    const dv = parseInt(targetInput, 10) || 15;
+    const parsedStatSkill = parseInt(modifierInput, 10);
+    const statSkill = isNaN(parsedStatSkill) ? 0 : parsedStatSkill;
+    const parsedDv = parseInt(targetInput, 10);
+    const dv = isNaN(parsedDv) ? 15 : parsedDv;
 
     const evalRes = evaluateCyberpunkRoll(statSkill, dv);
 
@@ -79,8 +96,10 @@ export default function DiceConsole({
   };
 
   const handleRollPF2e = () => {
-    const mod = parseInt(modifierInput, 10) || 5;
-    const dc = parseInt(targetInput, 10) || 15;
+    const parsedMod = parseInt(modifierInput, 10);
+    const mod = isNaN(parsedMod) ? 0 : parsedMod;
+    const parsedDc = parseInt(targetInput, 10);
+    const dc = isNaN(parsedDc) ? 10 : parsedDc;
 
     const evalRes = evaluatePF2eRoll(mod, dc);
 

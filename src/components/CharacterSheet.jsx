@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Shield, Heart, Zap, Sparkles, Trash2, FileText } from 'lucide-react';
+import { User, Shield, Heart, Zap, Sparkles, Trash2, FileText, Plus, X } from 'lucide-react';
 import { getStatBreakdown, getDerivedSecondaryStats, getMovementRate } from '../utils/cocRules';
 import SkillsSection from './SkillsSection';
 import WeaponsSection from './WeaponsSection';
@@ -12,11 +12,18 @@ export default function CharacterSheet({
   character,
   onUpdateCharacter,
   onDeleteCharacter,
-  onTriggerRoll
+  onTriggerRoll,
+  mobileTab, // 'sheet' | 'skills' | 'attacks' | 'notes' — set by mobile bottom nav
 }) {
   const [activeTab, setActiveTab] = useState('stats');
+  const [showAddCustomCond, setShowAddCustomCond] = useState(false);
+  const [newCustomCondName, setNewCustomCondName] = useState('');
   const sysConfig = GAME_SYSTEMS[gameSystem] || GAME_SYSTEMS.coc;
   const terms = sysConfig.terms || GAME_SYSTEMS.coc.terms;
+
+  // Mobile bottom-nav overrides the internal activeTab when provided
+  const mobileTabMap = { sheet: 'stats', skills: 'skills', attacks: 'weapons', notes: 'notes' };
+  const effectiveTab = mobileTab ? (mobileTabMap[mobileTab] ?? 'stats') : activeTab;
 
   if (!character) {
     return (
@@ -81,24 +88,99 @@ export default function CharacterSheet({
     });
   };
 
+  const handleAddCustomCondition = (e) => {
+    if (e) e.preventDefault();
+    const trimmed = newCustomCondName.trim();
+    if (!trimmed) return;
+
+    const newCond = {
+      id: `custom-cond-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      name: trimmed,
+      active: true
+    };
+
+    onUpdateCharacter({
+      ...character,
+      customConditions: [...(character.customConditions || []), newCond]
+    });
+
+    setNewCustomCondName('');
+    setShowAddCustomCond(false);
+  };
+
+  const toggleCustomCondition = (condId) => {
+    onUpdateCharacter({
+      ...character,
+      customConditions: (character.customConditions || []).map((c) =>
+        c.id === condId ? { ...c, active: !c.active } : c
+      )
+    });
+  };
+
+  const removeCustomCondition = (e, condId) => {
+    e.stopPropagation();
+    onUpdateCharacter({
+      ...character,
+      customConditions: (character.customConditions || []).filter((c) => c.id !== condId)
+    });
+  };
+
   return (
-    <div className={`space-y-4 p-5 rounded-sm border-2 shadow-retro relative transition-colors ${
+    <div className={`space-y-4 p-5 relative transition-colors ${
       gameSystem === 'cyberpunk'
-        ? 'dark:bg-[#0d1117] bg-[#ffffff] dark:text-[#f0f6fc] text-[#0d0d0d] border-[#ffee00] dark:border-[#21262d]'
+        ? 'cyber-panel bg-[#060910] text-[#c8d8e8]'
         : gameSystem === 'pf2e'
-        ? 'dark:bg-[#161c28] bg-[#ffffff] dark:text-[#e2e8f0] text-[#1e293b] border-[#d4af37] dark:border-[#1e293b]'
-        : 'dark:bg-[#1C2320] bg-[#EFEAD8] dark:text-[#EBE6DB] text-[#161B18] dark:border-[#090C0A] border-[#1C201D]'
+        ? 'pf2e-panel bg-[#1e1508] text-[#e8d5b0]'
+        : 'dark:bg-[#1C2320] bg-[#EFEAD8] dark:text-[#EBE6DB] text-[#161B18] dark:border-[#090C0A] border-[#1C201D] rounded-sm border-2 shadow-retro'
     }`}>
-      {/* Top Banner & Classification Badge */}
-      <div className={`flex flex-wrap items-center justify-between gap-4 p-4 rounded-sm border-2 shadow-retro-sm ${
+
+      {/* ── Compact mobile context bar (shown on non-sheet mobile pages) ── */}
+      {mobileTab && mobileTab !== 'sheet' && (
+        <div className={`flex items-center justify-between text-xs pb-2 border-b-2 ${
+          gameSystem === 'cyberpunk' ? 'border-[#1a2e4a] font-cyber'
+          : gameSystem === 'pf2e' ? 'border-[#3d2e1a] font-chronicle'
+          : 'dark:border-[#2D3732] border-[#1C201D] font-display'
+        }`}>
+          <span className={`font-extrabold uppercase tracking-wider ${
+            gameSystem === 'cyberpunk' ? 'text-[#00e5ff]'
+            : gameSystem === 'pf2e' ? 'text-[#c8a84b]'
+            : 'dark:text-[#F4EFE3] text-[#161B18]'
+          }`}>
+            {character.name}
+          </span>
+          <span className={`font-typewriter ${
+            gameSystem === 'cyberpunk' ? 'text-[#4a6b8a]'
+            : gameSystem === 'pf2e' ? 'text-[#7a6040]'
+            : 'dark:text-[#A8B2AC] text-[#5A6861]'
+          }`}>
+            HP <strong className="dark:text-[#F4EFE3] text-[#161B18]" style={{
+              color: gameSystem === 'cyberpunk' ? '#00e5ff' : gameSystem === 'pf2e' ? '#c8a84b' : undefined
+            }}>{character.hp?.current ?? maxHp}</strong>/{character.hp?.max ?? maxHp}
+            {' · '}
+            SAN <strong style={{
+              color: gameSystem === 'cyberpunk' ? '#00e5ff' : gameSystem === 'pf2e' ? '#c8a84b' : '#D99F26'
+            }}>{character.sanity?.current ?? character.san?.current ?? 50}</strong>
+          </span>
+        </div>
+      )}
+      {/* ── Full Top Banner (hidden on non-sheet mobile pages) ── */}
+      {(!mobileTab || mobileTab === 'sheet') && (
+      <div className={`flex flex-wrap items-center justify-between gap-4 p-4 ${
         gameSystem === 'cyberpunk'
-          ? 'dark:bg-[#161b22] bg-[#f4f6f8] dark:border-[#21262d] border-[#d0d7de]'
+          ? 'bg-[#040710] border border-[#1a2e4a] border-l-[#00e5ff] border-l-2'
           : gameSystem === 'pf2e'
-          ? 'dark:bg-[#10141d] bg-[#f8f6f0] dark:border-[#1e293b] border-[#e2e8f0]'
-          : 'dark:bg-[#141816] bg-[#E3DAC8] dark:text-[#EBE6DB] text-[#161B18] dark:border-[#090C0A] border-[#1C201D]'
+          ? 'bg-[#160f04] border border-[#3d2e1a] border-t-[#c8a84b] border-t-2 rounded-sm'
+          : 'dark:bg-[#141816] bg-[#E3DAC8] dark:text-[#EBE6DB] text-[#161B18] dark:border-[#090C0A] border-[#1C201D] rounded-sm border-2 shadow-retro-sm'
       }`}>
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-sm bg-[#E65A2B] border-2 dark:border-[#090C0A] border-[#1C201D] flex items-center justify-center text-[#F4EFE3] font-display font-extrabold text-xl uppercase shadow-retro-sm">
+          {/* Avatar Box */}
+          <div className={`w-11 h-11 flex items-center justify-center font-extrabold text-xl uppercase ${
+            gameSystem === 'cyberpunk'
+              ? 'bg-[#e60037] text-white border border-[#00e5ff] font-cyber shadow-[0_0_10px_rgba(230,0,55,0.5)]'
+              : gameSystem === 'pf2e'
+              ? 'bg-[#c8a84b] text-[#160f04] border border-[#8b2020] font-chronicle rounded-full shadow-[0_0_8px_rgba(200,168,75,0.4)]'
+              : 'rounded-sm bg-[#E65A2B] border-2 dark:border-[#090C0A] border-[#1C201D] text-[#F4EFE3] font-display shadow-retro-sm'
+          }`}>
             {character.name ? character.name.substring(0, 2) : 'CC'}
           </div>
           <div>
@@ -107,57 +189,169 @@ export default function CharacterSheet({
                 type="text"
                 value={character.name}
                 onChange={(e) => onUpdateCharacter({ ...character, name: e.target.value })}
-                className="bg-transparent font-display font-bold text-lg dark:text-[#F4EFE3] text-[#161B18] focus:outline-none dark:focus:bg-[#1C2320] focus:bg-[#FAF6EE] px-1.5 py-0.5 rounded-sm border border-transparent focus:border-[#E65A2B]"
+                className={`bg-transparent font-bold text-lg focus:outline-none px-1.5 py-0.5 border border-transparent ${
+                  gameSystem === 'cyberpunk'
+                    ? 'font-cyber text-[#c8d8e8] focus:bg-[#040710] focus:border-[#00e5ff]'
+                    : gameSystem === 'pf2e'
+                    ? 'font-chronicle text-[#e8d5b0] focus:bg-[#160f04] focus:border-[#c8a84b] rounded-sm'
+                    : 'font-display dark:text-[#F4EFE3] text-[#161B18] dark:focus:bg-[#1C2320] focus:bg-[#FAF6EE] focus:border-[#E65A2B] rounded-sm'
+                }`}
               />
-              <span className="text-[10px] px-2 py-0.5 rounded-sm font-typewriter uppercase bg-[#D99F26] text-[#141816] font-bold border dark:border-[#090C0A] border-[#1C201D]">
+              <span className={`text-[10px] px-2 py-0.5 font-bold uppercase border ${
+                gameSystem === 'cyberpunk'
+                  ? 'font-cyber bg-[#e60037] text-white border-[#00e5ff]'
+                  : gameSystem === 'pf2e'
+                  ? 'font-chronicle bg-[#c8a84b]/20 text-[#c8a84b] border-[#c8a84b] rounded-sm'
+                  : 'font-typewriter rounded-sm bg-[#D99F26] text-[#141816] dark:border-[#090C0A] border-[#1C201D]'
+              }`}>
                 {character.type === 'investigator' ? terms.playerTitle.toUpperCase() : character.type.toUpperCase()}
               </span>
             </div>
-            <div className="flex items-center gap-3 text-xs dark:text-[#A8B2AC] text-[#5A6861] font-typewriter mt-0.5 font-semibold">
+            <div className={`flex items-center gap-3 text-xs mt-0.5 font-semibold ${
+              gameSystem === 'cyberpunk' ? 'font-cyber text-[#4a6b8a]'
+              : gameSystem === 'pf2e' ? 'font-typewriter text-[#7a6040]'
+              : 'font-typewriter dark:text-[#A8B2AC] text-[#5A6861]'
+            }`}>
               <span>{character.occupation || terms.playerTitle}</span>
-              <span className="dark:text-[#3D4B44] text-[#C8BFB0]">•</span>
+              <span className="opacity-30">•</span>
               <span>AGE {character.age || 30}</span>
-              <span className="dark:text-[#3D4B44] text-[#C8BFB0]">•</span>
-              <span>MOV: <strong className="text-[#E65A2B]">{mov}</strong></span>
+              <span className="opacity-30">•</span>
+              <span>MOV: <strong style={{
+                color: gameSystem === 'cyberpunk' ? '#00e5ff' : gameSystem === 'pf2e' ? '#c8a84b' : '#E65A2B'
+              }}>{mov}</strong></span>
             </div>
           </div>
         </div>
 
         <button
           onClick={() => onDeleteCharacter(character.id)}
-          className="text-xs dark:text-[#A8B2AC] text-[#5A6861] hover:text-[#E65A2B] font-display font-bold uppercase flex items-center gap-1.5 border-2 dark:border-[#2D3732] border-[#1C201D] hover:border-[#E65A2B] px-3 py-1.5 rounded-sm btn-retro dark:bg-[#1C2320] bg-[#FAF6EE] cursor-pointer"
+          className={`text-xs font-bold uppercase flex items-center gap-1.5 border-2 px-3 py-1.5 cursor-pointer transition-all ${
+            gameSystem === 'cyberpunk'
+              ? 'font-cyber bg-[#040710] text-[#4a6b8a] border-[#1a2e4a] hover:border-[#e60037] hover:text-[#e60037]'
+              : gameSystem === 'pf2e'
+              ? 'font-chronicle bg-[#160f04] text-[#7a6040] border-[#3d2e1a] hover:border-[#8b2020] hover:text-[#8b2020] rounded-sm'
+              : 'font-display dark:text-[#A8B2AC] text-[#5A6861] hover:text-[#E65A2B] dark:border-[#2D3732] border-[#1C201D] hover:border-[#E65A2B] rounded-sm btn-retro dark:bg-[#1C2320] bg-[#FAF6EE]'
+          }`}
         >
           <Trash2 className="w-3.5 h-3.5" />
           <span>{terms.purgeDossier}</span>
         </button>
       </div>
+      )}
 
-      {/* Conditions */}
-      <div className="flex flex-wrap items-center gap-2 dark:bg-[#141816] bg-[#DCD4C2] p-2.5 rounded-sm border-2 dark:border-[#090C0A] border-[#1C201D]">
-        <span className="text-xs font-typewriter font-bold dark:text-[#EBE6DB] text-[#161B18] uppercase tracking-wider mr-1 flex items-center gap-1">
-          <FileText className="w-3.5 h-3.5 text-[#E65A2B]" /> {terms.vitalStatus}:
+      {/* ── Conditions (hidden on non-sheet mobile pages) ── */}
+      {(!mobileTab || mobileTab === 'sheet') && (
+      <div className={`flex flex-wrap items-center gap-2 p-2.5 ${
+        gameSystem === 'cyberpunk'
+          ? 'bg-[#040710] border border-[#1a2e4a]'
+          : gameSystem === 'pf2e'
+          ? 'bg-[#160f04] border border-[#3d2e1a] rounded-sm'
+          : 'dark:bg-[#141816] bg-[#DCD4C2] border-2 dark:border-[#090C0A] border-[#1C201D] rounded-sm'
+      }`}>
+        <span className={`text-xs font-bold uppercase tracking-wider mr-1 flex items-center gap-1 ${
+          gameSystem === 'cyberpunk' ? 'font-cyber text-[#4a6b8a]'
+          : gameSystem === 'pf2e' ? 'font-chronicle text-[#7a6040]'
+          : 'font-typewriter dark:text-[#EBE6DB] text-[#161B18]'
+        }`}>
+          <FileText className={`w-3.5 h-3.5 ${
+            gameSystem === 'cyberpunk' ? 'text-[#00e5ff]' : gameSystem === 'pf2e' ? 'text-[#c8a84b]' : 'text-[#E65A2B]'
+          }`} /> {terms.vitalStatus}:
         </span>
         {['majorWound', 'unconscious', 'dying', 'tempInsane', 'indefinitelyInsane'].map((condKey) => {
           const active = character.conditions?.[condKey];
           const effectiveThresh = majorWoundThreshold || Math.floor((character.hp?.max || 10) / 2);
-          const label = condKey === 'majorWound' ? `${terms.majorWoundLabel} (TH:${effectiveThresh})` : condKey.replace(/([A-Z])/g, ' $1').toUpperCase();
+          const label = condKey === 'majorWound' ? `${terms.majorWoundLabel || 'MAJOR WOUND'} (TH:${effectiveThresh})` : condKey.replace(/([A-Z])/g, ' $1').toUpperCase();
           return (
             <button
               key={condKey}
+              type="button"
               onClick={() => toggleCondition(condKey)}
-              className={`px-2.5 py-0.5 text-[11px] font-typewriter font-bold border-2 transition-all rounded-sm cursor-pointer ${
-                active
-                  ? 'bg-[#E65A2B] text-[#F4EFE3] border-[#090C0A] shadow-retro-sm scale-105'
-                  : 'dark:bg-[#1C2320] bg-[#FAF6EE] dark:text-[#A8B2AC] text-[#5A6861] dark:border-[#2D3732] border-[#1C201D] hover:border-[#E65A2B]'
+              className={`px-2.5 py-0.5 text-[11px] font-bold border transition-all cursor-pointer ${
+                gameSystem === 'cyberpunk'
+                  ? `font-cyber ${ active ? 'bg-[#e60037] text-white border-[#00e5ff] shadow-[0_0_6px_rgba(230,0,55,0.5)]' : 'bg-[#040710] text-[#4a6b8a] border-[#1a2e4a] hover:border-[#e60037] hover:text-[#e60037]' }`
+                  : gameSystem === 'pf2e'
+                  ? `font-chronicle rounded-sm ${ active ? 'bg-[#8b2020] text-[#f5e6c8] border-[#c8a84b]' : 'bg-[#160f04] text-[#7a6040] border-[#3d2e1a] hover:border-[#c8a84b] hover:text-[#c8a84b]' }`
+                  : `font-typewriter rounded-sm border-2 ${ active ? 'bg-[#E65A2B] text-[#F4EFE3] border-[#090C0A] shadow-retro-sm scale-105' : 'dark:bg-[#1C2320] bg-[#FAF6EE] dark:text-[#A8B2AC] text-[#5A6861] dark:border-[#2D3732] border-[#1C201D] hover:border-[#E65A2B]' }`
               }`}
             >
               {active ? `[!] ${label}` : label}
             </button>
           );
         })}
-      </div>
 
-      {/* Secondary Attributes Meter Row */}
+        {/* Custom Conditions */}
+        {(character.customConditions || []).map((cond) => (
+          <div
+            key={cond.id}
+            onClick={() => toggleCustomCondition(cond.id)}
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-typewriter font-bold border-2 transition-all rounded-sm cursor-pointer select-none ${
+              cond.active
+                ? 'bg-[#D99F26] text-[#141816] border-[#090C0A] shadow-retro-sm scale-105'
+                : 'dark:bg-[#1C2320] bg-[#FAF6EE] dark:text-[#A8B2AC] text-[#5A6861] dark:border-[#2D3732] border-[#1C201D] hover:border-[#D99F26]'
+            }`}
+          >
+            <span>{cond.active ? `[!] ${cond.name.toUpperCase()}` : cond.name.toUpperCase()}</span>
+            <button
+              type="button"
+              onClick={(e) => removeCustomCondition(e, cond.id)}
+              title="Remove custom condition"
+              className="p-0.5 hover:text-red-500 rounded-xs transition-colors"
+            >
+              <X className="w-3 h-3 stroke-[3]" />
+            </button>
+          </div>
+        ))}
+
+        {/* Add Custom Condition Form / Button */}
+        {showAddCustomCond ? (
+          <form onSubmit={handleAddCustomCondition} className="inline-flex items-center gap-1">
+            <input
+              type="text"
+              autoFocus
+              placeholder="Condition Name..."
+              value={newCustomCondName}
+              onChange={(e) => setNewCustomCondName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setShowAddCustomCond(false);
+                  setNewCustomCondName('');
+                }
+              }}
+              className="px-2 py-0.5 text-[11px] font-typewriter font-bold dark:bg-[#1C2320] bg-[#FAF6EE] dark:text-[#F4EFE3] text-[#161B18] border-2 border-[#E65A2B] rounded-sm outline-none w-36"
+            />
+            <button
+              type="submit"
+              className="px-2 py-0.5 text-[10px] font-display font-bold uppercase bg-[#E65A2B] text-[#F4EFE3] border border-[#090C0A] rounded-sm btn-retro cursor-pointer"
+            >
+              ADD
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddCustomCond(false);
+                setNewCustomCondName('');
+              }}
+              className="px-1.5 py-0.5 text-[10px] font-display font-bold uppercase dark:bg-[#1C2320] bg-[#FAF6EE] dark:text-[#A8B2AC] text-[#5A6861] border border-[#1C201D] rounded-sm cursor-pointer"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowAddCustomCond(true)}
+            className="px-2 py-0.5 text-[11px] font-typewriter font-bold border-2 border-dashed border-[#D99F26] text-[#D99F26] hover:bg-[#D99F26]/10 rounded-sm cursor-pointer inline-flex items-center gap-1 transition-colors"
+            title="Add Custom Condition"
+          >
+            <Plus className="w-3 h-3 stroke-[3]" />
+            <span>CUSTOM</span>
+          </button>
+        )}
+      </div>
+      )}
+
+      {/* ── Secondary Attributes Meter Row (hidden on non-sheet mobile pages) ── */}
+      {(!mobileTab || mobileTab === 'sheet') && (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* HP Meter */}
         <div className="dark:bg-[#141816] bg-[#FAF6EE] dark:text-[#EBE6DB] text-[#161B18] p-3 rounded-sm border-2 dark:border-[#090C0A] border-[#1C201D] space-y-1.5 shadow-retro-sm">
@@ -277,9 +471,15 @@ export default function CharacterSheet({
           </div>
         </div>
       </div>
+      )}
 
-      {/* Dossier Section Navigation Tabs */}
-      <div className="flex items-center gap-2 border-b-2 dark:border-[#090C0A] border-[#1C201D] pb-2">
+      {/* ── Dossier Section Navigation Tabs (hidden when mobileTab controls navigation) ── */}
+      {!mobileTab && (
+      <div className={`flex items-center gap-2 pb-2 ${
+        gameSystem === 'cyberpunk' ? 'border-b border-[#1a2e4a]'
+        : gameSystem === 'pf2e' ? 'border-b border-[#3d2e1a]'
+        : 'border-b-2 dark:border-[#090C0A] border-[#1C201D]'
+      }`}>
         {['stats', 'skills', 'weapons', 'notes'].map((tabKey) => {
           const labels = {
             stats: 'CORE CHARACTERISTICS',
@@ -292,10 +492,12 @@ export default function CharacterSheet({
             <button
               key={tabKey}
               onClick={() => setActiveTab(tabKey)}
-              className={`px-3.5 py-1.5 rounded-sm text-xs font-display uppercase font-bold tracking-wider transition-all border-2 ${
-                activeTab === tabKey
-                  ? 'dark:bg-[#141816] bg-[#FAF6EE] dark:text-[#F4EFE3] text-[#161B18] dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm'
-                  : 'dark:bg-[#252E2A] bg-[#DCD4C2] dark:text-[#A8B2AC] text-[#5A6861] border-transparent hover:border-[#1C201D]/30'
+              className={`px-3.5 py-1.5 text-xs font-bold tracking-wider transition-all ${
+                gameSystem === 'cyberpunk'
+                  ? `font-cyber border-b-2 border-t-0 border-x-0 ${ activeTab === tabKey ? 'text-[#00e5ff] border-[#00e5ff] bg-transparent' : 'text-[#4a6b8a] border-transparent hover:border-[#1a2e4a] bg-transparent' }`
+                  : gameSystem === 'pf2e'
+                  ? `font-chronicle uppercase rounded-sm ${ activeTab === tabKey ? 'bg-[#160f04] text-[#c8a84b] border border-[#c8a84b]/40' : 'bg-transparent text-[#7a6040] border border-transparent hover:border-[#3d2e1a]' }`
+                  : `font-display uppercase rounded-sm border-2 ${ activeTab === tabKey ? 'dark:bg-[#141816] bg-[#FAF6EE] dark:text-[#F4EFE3] text-[#161B18] dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm' : 'dark:bg-[#252E2A] bg-[#DCD4C2] dark:text-[#A8B2AC] text-[#5A6861] border-transparent hover:border-[#1C201D]/30' }`
               }`}
             >
               {labels[tabKey]}
@@ -303,9 +505,10 @@ export default function CharacterSheet({
           );
         })}
       </div>
+      )}
 
       {/* Tab 1: Core Characteristics Grid */}
-      {activeTab === 'stats' && (
+      {effectiveTab === 'stats' && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(
             gameSystem === 'cyberpunk'
@@ -320,13 +523,29 @@ export default function CharacterSheet({
             return (
               <div
                 key={statKey}
-                className="dark:bg-[#141816] bg-[#FAF6EE] dark:text-[#EBE6DB] text-[#161B18] p-3 rounded-sm border-2 dark:border-[#090C0A] border-[#1C201D] space-y-1.5 shadow-retro-sm"
+                className={`p-3 space-y-1.5 relative ${
+                  gameSystem === 'cyberpunk'
+                    ? 'bg-[#040710] border border-[#1a2e4a] border-l-2 border-l-[#00e5ff]/40 cyber-corner'
+                    : gameSystem === 'pf2e'
+                    ? 'bg-[#160f04] border border-[#3d2e1a] border-t border-t-[#c8a84b]/30 rounded-sm'
+                    : 'dark:bg-[#141816] bg-[#FAF6EE] dark:text-[#EBE6DB] text-[#161B18] rounded-sm border-2 dark:border-[#090C0A] border-[#1C201D] shadow-retro-sm'
+                }`}
               >
-                <div className="flex items-center justify-between text-xs font-typewriter">
-                  <span className="font-bold text-[#D99F26] text-sm">{statKey}</span>
+                <div className="flex items-center justify-between text-xs">
+                  <span className={`font-bold text-sm ${
+                    gameSystem === 'cyberpunk' ? 'font-cyber text-[#00e5ff]'
+                    : gameSystem === 'pf2e' ? 'font-chronicle text-[#c8a84b]'
+                    : 'font-typewriter text-[#D99F26]'
+                  }`}>{statKey}</span>
                   <button
                     onClick={() => onTriggerRoll(`${statKey} Check`, val)}
-                    className="px-2 py-0.5 bg-[#E65A2B] text-[#F4EFE3] font-display uppercase font-bold text-[10px] rounded-sm border border-[#090C0A] btn-retro"
+                    className={`px-2 py-0.5 font-bold uppercase text-[10px] border cursor-pointer transition-all ${
+                      gameSystem === 'cyberpunk'
+                        ? 'font-cyber bg-[#e60037] text-white border-[#00e5ff]/40 hover:shadow-[0_0_6px_rgba(230,0,55,0.5)]'
+                        : gameSystem === 'pf2e'
+                        ? 'font-chronicle bg-[#8b2020] text-[#f5e6c8] border-[#c8a84b]/40 rounded-sm'
+                        : 'font-display rounded-sm bg-[#E65A2B] text-[#F4EFE3] border-[#090C0A] btn-retro'
+                    }`}
                   >
                     Roll
                   </button>
@@ -338,15 +557,24 @@ export default function CharacterSheet({
                     max={99}
                     value={val}
                     onChange={(newVal) => handleStatChange(statKey, newVal)}
-                    accentColor="ochre"
+                    accentColor={gameSystem === 'cyberpunk' ? 'cyber' : gameSystem === 'pf2e' ? 'gold' : 'ochre'}
                     className="w-24 shrink-0"
                     inputClassName="text-lg font-bold"
                   />
 
-                  <div className="flex flex-col text-[11px] font-typewriter font-semibold text-right dark:text-[#A8B2AC] text-[#5A6861]">
-                    <span>1/2: <strong className="dark:text-[#F4EFE3] text-[#161B18]">{breakdown.hard}</strong></span>
-                    <span>1/5: <strong className="text-[#D99F26]">{breakdown.extreme}</strong></span>
-                  </div>
+                  {gameSystem !== 'cyberpunk' && (
+                    <div className={`flex flex-col text-[11px] font-semibold text-right ${
+                      gameSystem === 'pf2e' ? 'font-typewriter text-[#7a6040]' : 'font-typewriter dark:text-[#A8B2AC] text-[#5A6861]'
+                    }`}>
+                      <span>1/2: <strong className={gameSystem === 'pf2e' ? 'text-[#c8a84b]' : 'dark:text-[#F4EFE3] text-[#161B18]'}>{breakdown.hard}</strong></span>
+                      <span>1/5: <strong className={gameSystem === 'pf2e' ? 'text-[#8b2020]' : 'text-[#D99F26]'}>{breakdown.extreme}</strong></span>
+                    </div>
+                  )}
+                  {gameSystem === 'cyberpunk' && (
+                    <div className="flex flex-col text-[11px] font-cyber text-right text-[#4a6b8a]">
+                      <span>×2: <strong className="text-[#00e5ff]">{val * 2}</strong></span>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -355,7 +583,7 @@ export default function CharacterSheet({
       )}
 
       {/* Tab 2: Skills List */}
-      {activeTab === 'skills' && (
+      {effectiveTab === 'skills' && (
         <SkillsSection
           skills={character.skills || []}
           onUpdateSkill={(skillName, updates) => {
@@ -374,7 +602,7 @@ export default function CharacterSheet({
       )}
 
       {/* Tab 3: Weapons */}
-      {activeTab === 'weapons' && (
+      {effectiveTab === 'weapons' && (
         <WeaponsSection
           character={character}
           onUpdateWeapon={(weaponId, updates) => {
@@ -393,7 +621,7 @@ export default function CharacterSheet({
       )}
 
       {/* Tab 4: Notes & Inventory */}
-      {activeTab === 'notes' && (
+      {effectiveTab === 'notes' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-typewriter">
           <div className="space-y-1.5">
             <label className="dark:text-[#EBE6DB] text-[#161B18] font-bold block uppercase tracking-wider">{terms.backstoryLabel}</label>
