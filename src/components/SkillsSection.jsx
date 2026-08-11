@@ -125,6 +125,7 @@ export default function SkillsSection({
                   <button
                     type="button"
                     onClick={() => onUpdateSkill(s.name, { checked: !s.checked })}
+                    aria-label={`Toggle development check for ${s.name}`}
                     className="dark:text-[#A8B2AC] text-[#5A6861] hover:text-[#E65A2B] transition-colors"
                   >
                     {s.checked ? (
@@ -158,6 +159,7 @@ export default function SkillsSection({
                     onClick={() => onTriggerRoll(s.name, s.value)}
                     className="p-1.5 rounded-sm bg-[#E65A2B] text-[#F4EFE3] border border-[#090C0A] btn-retro"
                     title={`Roll ${s.name}`}
+                    aria-label={`Roll check for ${s.name}`}
                   >
                     <Dices className="w-3.5 h-3.5 stroke-[2.5]" />
                   </button>

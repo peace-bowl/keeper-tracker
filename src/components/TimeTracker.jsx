@@ -460,6 +460,7 @@ export default function TimeTracker({
                       onClick={() => onDeleteTimer(t.id)}
                       className="dark:text-[#A8B2AC] text-[#5A6861] hover:text-[#E65A2B] p-0.5 transition-colors"
                       title="Delete Timer"
+                      aria-label={`Delete timer ${t.name}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

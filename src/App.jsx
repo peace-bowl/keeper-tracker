@@ -9,8 +9,11 @@ import CheckRollModal from './components/CheckRollModal';
 import TimerAlertModal from './components/TimerAlertModal';
 import SystemAndRoleSelectScreen from './components/SystemAndRoleSelectScreen';
 import InvestigatorApp from './components/InvestigatorApp';
+import ErrorBoundary from './components/ErrorBoundary';
+import { AlertTriangle, X } from 'lucide-react';
 import { INITIAL_CAMPAIGN } from './data/defaultCampaign';
 import { GAME_SYSTEMS } from './data/gameSystems';
+import { loadAndMigrateCampaign } from './utils/schemaMigration';
 
 const LOCAL_STORAGE_KEY = 'coc_7e_gm_dashboard_state_v1';
 const ROLE_STORAGE_KEY = 'coc_7e_selected_role';
@@ -81,17 +84,18 @@ export default function App() {
     } catch (e) {}
   }, [selectedGameSystem]);
 
-  // Load initial campaign from localStorage or fallback to INITIAL_CAMPAIGN
+  const [storageNotice, setStorageNotice] = useState(null);
+
+  // Load initial campaign from localStorage with schema migration safety
   const [campaign, setCampaign] = useState(() => {
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error('Failed to parse saved campaign from localStorage', e);
+    const { campaign: loaded, warningMessage } = loadAndMigrateCampaign(
+      LOCAL_STORAGE_KEY,
+      INITIAL_CAMPAIGN
+    );
+    if (warningMessage) {
+      setTimeout(() => setStorageNotice(warningMessage), 0);
     }
-    return INITIAL_CAMPAIGN;
+    return loaded;
   });
 
   const [activeCharacterId, setActiveCharacterId] = useState(() => {
@@ -129,13 +133,31 @@ export default function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // Auto-save to LocalStorage whenever campaign data updates
+  // Auto-save to LocalStorage with debounce + unload/visibility safety
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(campaign));
-    } catch (e) {
-      console.error('Failed to save campaign to localStorage', e);
-    }
+    const saveCampaign = () => {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(campaign));
+      } catch (err) {
+        console.error('Failed to save campaign to localStorage', err);
+      }
+    };
+
+    const timer = setTimeout(saveCampaign, 400);
+
+    const handleFlushSave = () => {
+      clearTimeout(timer);
+      saveCampaign();
+    };
+
+    window.addEventListener('beforeunload', handleFlushSave);
+    document.addEventListener('visibilitychange', handleFlushSave);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('beforeunload', handleFlushSave);
+      document.removeEventListener('visibilitychange', handleFlushSave);
+    };
   }, [campaign]);
 
   // Handle Time Advancement
@@ -387,12 +409,14 @@ export default function App() {
   // Investigator mode → show investigator-only dashboard
   if (selectedRole === 'investigator') {
     return (
-      <InvestigatorApp
-        gameSystem={selectedGameSystem}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-        onChangeRole={handleChangeRole}
-      />
+      <ErrorBoundary>
+        <InvestigatorApp
+          gameSystem={selectedGameSystem}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          onChangeRole={handleChangeRole}
+        />
+      </ErrorBoundary>
     );
   }
 
@@ -405,6 +429,22 @@ export default function App() {
         ? 'dark:bg-[#10141d] bg-[#f4f1ea] dark:text-[#e2e8f0] text-[#1e293b] bg-pf2e-grid selection:bg-[#d4af37] selection:text-black'
         : 'dark:bg-[#141816] bg-[#F5F1E6] bg-grid-1960s dark:text-[#EBE6DB] text-[#1C201D] selection:bg-[#E65A2B] selection:text-white'
     }`}>
+      {/* Storage Migration / Fallback Warning Banner */}
+      {storageNotice && (
+        <div className="bg-[#E65A2B] text-white px-4 py-2.5 flex items-center justify-between text-xs font-typewriter font-bold shadow-retro border-b-2 border-black">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{storageNotice}</span>
+          </div>
+          <button
+            onClick={() => setStorageNotice(null)}
+            aria-label="Dismiss warning notice"
+            className="p-1 hover:bg-black/20 rounded cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       {/* App Header */}
       <Header
         gameSystem={selectedGameSystem}

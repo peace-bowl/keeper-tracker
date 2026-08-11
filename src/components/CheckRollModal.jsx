@@ -25,6 +25,18 @@ export default function CheckRollModal({
     setModifier('normal');
   }, [targetValue, isOpen]);
 
+  // Handle Escape key to dismiss modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const numericTarget = parseInt(targetInput, 10) || 50;
@@ -107,7 +119,12 @@ export default function CheckRollModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#090C0A]/80 backdrop-blur-xs p-4 animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="check-roll-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#090C0A]/80 backdrop-blur-xs p-4 animate-fade-in"
+    >
       <div className="w-full max-w-md dark:bg-[#1C2320] bg-[#EFEAD8] dark:text-[#EBE6DB] text-[#161B18] border-2 dark:border-[#090C0A] border-[#1C201D] rounded-sm p-5 space-y-4 shadow-retro">
         
         {/* Header Bar */}
@@ -120,7 +137,7 @@ export default function CheckRollModal({
               <span className="text-[10px] font-typewriter font-bold text-[#D99F26] uppercase block">
                 CHECK ROLL INITIATED
               </span>
-              <h3 className="text-sm font-bold font-display uppercase tracking-wider dark:text-[#F4EFE3] text-[#161B18]">
+              <h3 id="check-roll-modal-title" className="text-sm font-bold font-display uppercase tracking-wider dark:text-[#F4EFE3] text-[#161B18]">
                 {targetSkillName}
               </h3>
             </div>
@@ -128,6 +145,7 @@ export default function CheckRollModal({
 
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1 rounded-sm text-[#5A6861] hover:text-[#E65A2B] hover:bg-[#141816] transition-colors"
             title="Close"
           >

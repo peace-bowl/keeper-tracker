@@ -129,6 +129,7 @@ export default function Header({
         <button
           onClick={onToggleTheme}
           title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          aria-label={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display uppercase font-bold tracking-wider dark:bg-[#252E2A] bg-[#FAF6EE] dark:text-[#D99F26] text-[#E65A2B] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro cursor-pointer"
         >
           {theme === 'dark' ? <Sun className="w-4 h-4 stroke-[2.5]" /> : <Moon className="w-4 h-4 stroke-[2.5]" />}
@@ -139,6 +140,7 @@ export default function Header({
         <button
           onClick={onExportCampaign}
           title="Export Campaign Backup (JSON)"
+          aria-label="Export Campaign Backup"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display font-bold uppercase dark:bg-[#252E2A] bg-[#FAF6EE] hover:bg-[#DCD4C2] dark:hover:bg-[#2D3732] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro cursor-pointer"
         >
           <Download className="w-3.5 h-3.5 text-[#D99F26] stroke-[2.5]" />
@@ -156,6 +158,7 @@ export default function Header({
         <button
           onClick={() => fileInputRef.current?.click()}
           title="Import Campaign (JSON) or PDF Character Sheet (.pdf)"
+          aria-label="Import Campaign or PDF Character Sheet"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display font-bold uppercase dark:bg-[#252E2A] bg-[#FAF6EE] hover:bg-[#DCD4C2] dark:hover:bg-[#2D3732] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro cursor-pointer"
         >
           <Upload className="w-3.5 h-3.5 text-[#D99F26] stroke-[2.5]" />
@@ -166,6 +169,7 @@ export default function Header({
         <button
           onClick={onResetSampleData}
           title="Reset to Default Campaign Data"
+          aria-label="Reset to Default Campaign Data"
           className="p-1.5 rounded-sm text-xs dark:bg-[#252E2A] bg-[#FAF6EE] hover:bg-[#DCD4C2] dark:hover:bg-[#2D3732] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -175,6 +179,7 @@ export default function Header({
         <button
           onClick={onToggleSidebar}
           title={isSidebarOpen ? 'Collapse Side Trackers' : 'Expand Side Trackers'}
+          aria-label={isSidebarOpen ? 'Collapse Side Trackers' : 'Expand Side Trackers'}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-display uppercase font-bold tracking-wider btn-retro border-2 dark:border-[#090C0A] border-[#1C201D] cursor-pointer ${
             isSidebarOpen
               ? 'bg-[#D99F26] text-[#141816]'
@@ -190,6 +195,7 @@ export default function Header({
           <button
             onClick={onChangeRole}
             title="Return to System & Role Selection Landing Page"
+            aria-label="Return to System & Role Selection Landing Page"
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs dark:bg-[#252E2A] bg-[#FAF6EE] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro font-display uppercase font-bold tracking-wider cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5 stroke-[2.5]" />

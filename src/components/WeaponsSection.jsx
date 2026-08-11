@@ -197,6 +197,7 @@ export default function WeaponsSection({
                     <span className="dark:text-[#A8B2AC] text-[#5A6861] text-[10px] font-bold">AMMO:</span>
                     <button
                       onClick={() => handleAmmoAdjust(w.id, -1)}
+                      aria-label="Decrease ammo"
                       className="w-5 h-5 bg-[#252E2A] hover:bg-[#E65A2B] text-[#F4EFE3] rounded-sm flex items-center justify-center font-bold border border-[#090C0A]"
                     >
                       -
@@ -204,6 +205,7 @@ export default function WeaponsSection({
                     <span className="text-[#D99F26] font-bold px-1.5">{w.ammoCurrent}/{w.ammoMax}</span>
                     <button
                       onClick={() => handleAmmoAdjust(w.id, 1)}
+                      aria-label="Increase ammo"
                       className="w-5 h-5 bg-[#252E2A] hover:bg-[#2A6B60] text-[#F4EFE3] rounded-sm flex items-center justify-center font-bold border border-[#090C0A]"
                     >
                       +
@@ -221,6 +223,8 @@ export default function WeaponsSection({
 
                 <button
                   onClick={() => onDeleteWeapon(w.id)}
+                  title="Delete weapon"
+                  aria-label={`Delete weapon ${w.name}`}
                   className="dark:text-[#A8B2AC] text-[#5A6861] hover:text-[#E65A2B] p-1 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />

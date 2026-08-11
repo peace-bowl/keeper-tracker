@@ -20,13 +20,32 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
   const [diceLog, setDiceLog] = useState([]);
 
-  // Persist investigator
+  // Persist investigator with debounce + unload safety
   useEffect(() => {
-    try {
-      if (investigator) {
+    if (!investigator) return;
+    const saveInvestigator = () => {
+      try {
         localStorage.setItem(INV_STORAGE_KEY, JSON.stringify(investigator));
+      } catch (err) {
+        console.error('Failed to save investigator to localStorage', err);
       }
-    } catch (e) {}
+    };
+
+    const timer = setTimeout(saveInvestigator, 400);
+
+    const handleFlushSave = () => {
+      clearTimeout(timer);
+      saveInvestigator();
+    };
+
+    window.addEventListener('beforeunload', handleFlushSave);
+    document.addEventListener('visibilitychange', handleFlushSave);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('beforeunload', handleFlushSave);
+      document.removeEventListener('visibilitychange', handleFlushSave);
+    };
   }, [investigator]);
 
   const handleTriggerRoll = (skillName, skillValue) => {

@@ -175,6 +175,7 @@ export default function CombatTracker({
           <button
             onClick={onPrevTurn}
             title="Previous Turn"
+            aria-label="Previous Turn"
             className="p-1 rounded-sm border dark:border-[#090C0A] border-[#1C201D] dark:bg-[#252E2A] bg-[#FAF6EE] hover:bg-[#D99F26] btn-retro cursor-pointer"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
@@ -257,6 +258,7 @@ export default function CombatTracker({
                               e.stopPropagation();
                               toggleActionMarker(c.id, actIdx);
                             }}
+                            aria-label={`Toggle action marker ${actIdx + 1}`}
                             className={`w-4 h-4 text-[10px] font-bold rounded flex items-center justify-center transition-all ${
                               actIdx < actionsLeft
                                 ? 'bg-[#d4af37] text-black shadow-[0_0_5px_rgba(212,175,55,0.6)]'
@@ -277,6 +279,7 @@ export default function CombatTracker({
                           onUpdateCombatant(c.id, { readyingFirearm: !c.readyingFirearm });
                         }}
                         title="Toggle Readied Firearm (+50 DEX Initiative Boost)"
+                        aria-label="Toggle Readied Firearm (+50 DEX Initiative Boost)"
                         className={`p-1 rounded border text-[10px] font-typewriter font-bold flex items-center gap-1 cursor-pointer ${
                           c.readyingFirearm
                             ? 'bg-[#E65A2B] text-white border-black'
@@ -308,6 +311,7 @@ export default function CombatTracker({
                         onRemoveCombatant(c.id);
                       }}
                       title="Remove from Combat"
+                      aria-label={`Remove ${c.name} from combat`}
                       className="text-rose-500 hover:text-rose-400 p-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -398,6 +402,7 @@ export default function CombatTracker({
           <button
             onClick={onClearAllCombatants}
             title="Clear All Combatants"
+            aria-label="Clear All Combatants"
             className="p-1.5 rounded-sm border dark:border-[#2D3732] border-[#1C201D] dark:bg-[#141816] bg-[#FAF6EE] text-rose-500 hover:text-rose-400 btn-retro cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
