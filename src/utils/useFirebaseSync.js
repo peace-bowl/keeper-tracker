@@ -36,6 +36,18 @@ export function loadOrCreateRoomCode() {
 }
 
 /**
+ * Helper to compute a clean JSON payload hash of synced fields (excluding timestamps/sentinels).
+ */
+function computePayloadHash(data) {
+  if (!data) return '';
+  const payload = {};
+  for (const key of SYNC_FIELDS) {
+    if (data[key] !== undefined) payload[key] = data[key];
+  }
+  return JSON.stringify(payload);
+}
+
+/**
  * useFirebaseSync — subscribes to Firestore campaign document and pushes
  * local campaign state changes up on a debounced schedule.
  *
@@ -50,8 +62,8 @@ export function useFirebaseSync(campaign, onRemoteUpdate, isKeeper = true) {
     FIREBASE_CONFIGURED ? 'connecting' : 'unconfigured'
   );
 
-  // Track the most recent remote data hash to avoid echo-write loops
-  const lastRemoteRef = useRef(null);
+  // Track the most recent data hash to prevent echo-write loops
+  const lastSyncedHashRef = useRef('');
   const writeTimerRef = useRef(null);
 
   const setRoomCode = useCallback((code) => {
@@ -77,9 +89,10 @@ export function useFirebaseSync(campaign, onRemoteUpdate, isKeeper = true) {
       (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data();
-          const remoteHash = JSON.stringify(data);
-          if (remoteHash !== lastRemoteRef.current) {
-            lastRemoteRef.current = remoteHash;
+          const incomingHash = computePayloadHash(data);
+          // Only trigger React state update if remote content actually differs
+          if (incomingHash && incomingHash !== lastSyncedHashRef.current) {
+            lastSyncedHashRef.current = incomingHash;
             onRemoteUpdate(data);
           }
         }
@@ -94,25 +107,25 @@ export function useFirebaseSync(campaign, onRemoteUpdate, isKeeper = true) {
     return () => unsubscribe();
   }, [roomCode, onRemoteUpdate]);
 
-  // ── Firestore write (debounced, Keeper only) ─────────────────────────────
+  // ── Firestore write (debounced 1.5s, Keeper only) ─────────────────────────
   useEffect(() => {
     if (!FIREBASE_CONFIGURED || !db || !isKeeper || !roomCode || roomCode.length !== 6) return;
 
-    const syncData = {};
-    for (const key of SYNC_FIELDS) {
-      if (campaign[key] !== undefined) syncData[key] = campaign[key];
-    }
-    syncData.updatedAt = serverTimestamp();
-
-    const currentHash = JSON.stringify(syncData);
-    // Don't write back data that just came in from Firestore (echo prevention)
-    if (currentHash === lastRemoteRef.current) return;
-
-    setSyncStatus('saving');
+    const currentHash = computePayloadHash(campaign);
+    if (!currentHash || currentHash === lastSyncedHashRef.current) return;
 
     clearTimeout(writeTimerRef.current);
     writeTimerRef.current = setTimeout(async () => {
       try {
+        setSyncStatus('saving');
+        lastSyncedHashRef.current = currentHash;
+
+        const syncData = {};
+        for (const key of SYNC_FIELDS) {
+          if (campaign[key] !== undefined) syncData[key] = campaign[key];
+        }
+        syncData.updatedAt = serverTimestamp();
+
         const ref = doc(db, 'campaigns', roomCode);
         await setDoc(ref, syncData, { merge: true });
         setSyncStatus('synced');
@@ -120,7 +133,7 @@ export function useFirebaseSync(campaign, onRemoteUpdate, isKeeper = true) {
         console.error('[Keeper Tracker] Firestore write failed:', err);
         setSyncStatus('error');
       }
-    }, 500);
+    }, 1500);
 
     return () => clearTimeout(writeTimerRef.current);
   }, [campaign, roomCode, isKeeper]);
@@ -147,7 +160,7 @@ export function useFirestoreInvestigatorSync(roomCode, onGmUpdate, investigator)
     FIREBASE_CONFIGURED ? 'connecting' : 'unconfigured'
   );
   const writeTimerRef = useRef(null);
-  const lastRemoteRef = useRef(null);
+  const lastSyncedHashRef = useRef('');
 
   // Subscribe to the GM campaign doc
   useEffect(() => {
@@ -165,8 +178,8 @@ export function useFirestoreInvestigatorSync(roomCode, onGmUpdate, investigator)
         if (snapshot.exists()) {
           const data = snapshot.data();
           const hash = JSON.stringify({ c: data.characters, t: data.timeState });
-          if (hash !== lastRemoteRef.current) {
-            lastRemoteRef.current = hash;
+          if (hash !== lastSyncedHashRef.current) {
+            lastSyncedHashRef.current = hash;
             onGmUpdate({ characters: data.characters, timeState: data.timeState });
           }
         }
@@ -185,15 +198,19 @@ export function useFirestoreInvestigatorSync(roomCode, onGmUpdate, investigator)
   useEffect(() => {
     if (!FIREBASE_CONFIGURED || !db || !roomCode || !investigator?.id) return;
 
+    const payloadHash = JSON.stringify(investigator);
+    if (payloadHash === lastSyncedHashRef.current) return;
+
     clearTimeout(writeTimerRef.current);
     writeTimerRef.current = setTimeout(async () => {
       try {
+        lastSyncedHashRef.current = payloadHash;
         const ref = doc(db, 'campaigns', roomCode, 'investigators', investigator.id);
         await setDoc(ref, { ...investigator, updatedAt: serverTimestamp() }, { merge: true });
       } catch (err) {
         console.error('[Keeper Tracker] Investigator write failed:', err);
       }
-    }, 600);
+    }, 1500);
 
     return () => clearTimeout(writeTimerRef.current);
   }, [investigator, roomCode]);
