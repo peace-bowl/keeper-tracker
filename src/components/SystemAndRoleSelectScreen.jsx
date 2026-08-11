@@ -1,11 +1,71 @@
 import React, { useState } from 'react';
-import { BookOpen, User, ChevronRight, Dices, Terminal, Shield, Zap, Flame, Crown, Skull } from 'lucide-react';
+import { BookOpen, User, ChevronRight, Terminal, Crown, Skull, Wifi, Loader2, Search, X, AlertTriangle, UserCheck } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
 import { GAME_SYSTEMS } from '../data/gameSystems';
 import logoImg from '../assets/logo.png';
+import { db, FIREBASE_CONFIGURED } from '../firebase';
 
-export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
+export default function SystemAndRoleSelectScreen({ onSelectGameAndRole, onJoinRoomAsPlayer }) {
   const [selectedSystem, setSelectedSystem] = useState('coc');
   const activeSystemConfig = GAME_SYSTEMS[selectedSystem];
+
+  // Room Join State
+  const [roomCodeInput, setRoomCodeInput] = useState('');
+  const [isSearchingRoom, setIsSearchingRoom] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const [foundRoomData, setFoundRoomData] = useState(null); // { roomCode, characters, system }
+
+  const handleSearchRoom = async (e) => {
+    e.preventDefault();
+    const code = roomCodeInput.toUpperCase().trim();
+    if (code.length !== 6) {
+      setSearchError('Room code must be 6 characters (e.g. ABCD12).');
+      return;
+    }
+
+    if (!FIREBASE_CONFIGURED || !db) {
+      setSearchError('Firebase is not configured yet. Set up your .env.local file to enable cloud sync.');
+      return;
+    }
+
+    setIsSearchingRoom(true);
+    setSearchError(null);
+
+    try {
+      const ref = doc(db, 'campaigns', code);
+      const snapshot = await getDoc(ref);
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        const chars = data.characters || [];
+        if (chars.length === 0) {
+          setSearchError(`Room "${code}" exists, but has no active characters yet. Ask your Keeper to add characters.`);
+        } else {
+          setFoundRoomData({
+            roomCode: code,
+            characters: chars,
+            system: data.gameSystem || selectedSystem,
+          });
+        }
+      } else {
+        setSearchError(`Room "${code}" not found. Check the code with your Keeper.`);
+      }
+    } catch (err) {
+      console.error('[Keeper Tracker] Room search failed:', err);
+      setSearchError('Failed to connect to room. Check your internet connection.');
+    } finally {
+      setIsSearchingRoom(false);
+    }
+  };
+
+  const handleSelectCharacterToFollow = (character) => {
+    if (onJoinRoomAsPlayer && foundRoomData) {
+      onJoinRoomAsPlayer({
+        roomCode: foundRoomData.roomCode,
+        character,
+        gameSystem: foundRoomData.system || selectedSystem,
+      });
+    }
+  };
 
   return (
     <div className={`min-h-screen transition-colors duration-300 font-sans selection:bg-[#E65A2B] selection:text-white p-4 sm:p-6 flex flex-col items-center justify-center relative overflow-hidden ${
@@ -289,11 +349,136 @@ export default function SystemAndRoleSelectScreen({ onSelectGameAndRole }) {
           </div>
         </div>
 
+        {/* 3. Connect to Live Game Room Section */}
+        <div className="w-full space-y-3">
+          <label className="block text-center text-xs font-typewriter font-bold uppercase tracking-widest opacity-70">
+            3. OR JOIN A LIVE CAMPAIGN ROOM
+          </label>
+
+          <form
+            onSubmit={handleSearchRoom}
+            className={`p-5 rounded-sm border-2 transition-all duration-300 ${
+              selectedSystem === 'cyberpunk'
+                ? 'dark:border-[#2d1218] border-[#0d0d0d] dark:bg-[#180a0e] bg-[#ffffff]'
+                : selectedSystem === 'pf2e'
+                ? 'dark:border-[#1e293b] border-[#b89320] dark:bg-[#161c28] bg-[#ffffff]'
+                : 'dark:border-[#2D3732] border-[#1C201D] dark:bg-[#1C2320] bg-[#EBE4D4]'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="flex items-center gap-2 text-xs font-display font-bold uppercase tracking-wider shrink-0 dark:text-[#F4EFE3] text-[#1C201D]">
+                <Wifi className="w-4 h-4 text-[#2A6B60] shrink-0" />
+                <span>Room Code:</span>
+              </div>
+
+              <input
+                type="text"
+                value={roomCodeInput}
+                onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase().slice(0, 6))}
+                maxLength={6}
+                placeholder="EX: ABCD12"
+                className="w-full sm:w-44 px-3 py-2 font-typewriter text-center text-base tracking-[0.2em] font-bold uppercase dark:bg-[#141816] bg-[#FAF6EE] border-2 dark:border-[#2D3732] border-[#1C201D] rounded-sm dark:text-[#D99F26] text-[#E65A2B] focus:outline-none focus:ring-2 focus:ring-[#2A6B60]"
+              />
+
+              <button
+                type="submit"
+                disabled={isSearchingRoom || roomCodeInput.trim().length !== 6}
+                className="w-full sm:w-auto px-5 py-2 bg-[#2A6B60] text-[#F4EFE3] font-display uppercase font-bold text-xs tracking-wider rounded-sm border-2 border-[#090C0A] btn-retro shadow-retro-sm flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+              >
+                {isSearchingRoom ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Connecting…</span>
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 stroke-[2.5]" />
+                    <span>Find Room & Choose Character</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Search Error Banner */}
+            {searchError && (
+              <div className="mt-3 px-3 py-2 rounded-sm border-2 border-[#E65A2B] bg-[#E65A2B]/10 text-[#E65A2B] text-xs font-typewriter flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{searchError}</span>
+              </div>
+            )}
+          </form>
+        </div>
+
         {/* Footer */}
         <p className="text-[10px] font-typewriter opacity-50 uppercase tracking-widest text-center">
           Multi-System TTRPG Campaign Desk · Call of Cthulhu 7e · Cyberpunk RED · Pathfinder 2e
         </p>
       </div>
+
+      {/* Choose Character Modal */}
+      {foundRoomData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setFoundRoomData(null)}
+          />
+
+          {/* Modal Panel */}
+          <div className="relative z-10 w-full max-w-lg dark:bg-[#1A201C] bg-[#F5F1E6] border-2 dark:border-[#2D3732] border-[#1C201D] shadow-retro rounded-sm flex flex-col max-h-[85vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b-2 dark:border-[#2D3732] border-[#1C201D]">
+              <div>
+                <span className="stamp-badge border-[#2A6B60] text-[#2A6B60] text-[10px]">ROOM {foundRoomData.roomCode}</span>
+                <h2 className="font-display font-extrabold uppercase tracking-wider text-base dark:text-[#F4EFE3] text-[#161B18] mt-0.5">
+                  Select Your Investigator to Follow
+                </h2>
+              </div>
+              <button
+                onClick={() => setFoundRoomData(null)}
+                className="w-7 h-7 flex items-center justify-center rounded-sm dark:bg-[#252E2A] bg-[#EBE4D4] dark:border-[#090C0A] border-[#1C201D] border-2 btn-retro dark:text-[#A8B2AC] text-[#5A6861]"
+              >
+                <X className="w-4 h-4 stroke-[2.5]" />
+              </button>
+            </div>
+
+            {/* Character Cards List */}
+            <div className="p-4 space-y-3 overflow-y-auto flex-1">
+              <p className="text-xs font-typewriter dark:text-[#A8B2AC] text-[#5A6861]">
+                Pick the character you are playing. Your dossier will stay synced with the Keeper's desk in real time.
+              </p>
+
+              {foundRoomData.characters.map((char) => (
+                <button
+                  key={char.id}
+                  onClick={() => handleSelectCharacterToFollow(char)}
+                  className="w-full text-left p-3.5 rounded-sm border-2 dark:border-[#2D3732] border-[#1C201D] dark:bg-[#252E2A] bg-[#EBE4D4] hover:border-[#2A6B60] transition-all btn-retro flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-sm bg-[#2A6B60] text-white flex items-center justify-center font-bold font-display uppercase border border-black shadow-retro-sm">
+                      {char.name?.charAt(0) || 'I'}
+                    </div>
+                    <div>
+                      <h3 className="font-display font-extrabold text-sm uppercase dark:text-[#F4EFE3] text-[#161B18] group-hover:text-[#2A6B60] transition-colors">
+                        {char.name || 'Unnamed Investigator'}
+                      </h3>
+                      <p className="text-xs font-typewriter dark:text-[#A8B2AC] text-[#5A6861]">
+                        {char.occupation || char.role || 'Investigator'} · HP {char.hp?.current ?? char.hp}/{char.hp?.max ?? char.hp}
+                        {char.san && ` · SAN ${char.san?.current ?? char.san}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2A6B60] text-[#F4EFE3] text-xs font-display font-bold uppercase tracking-wider rounded-sm border border-black shadow-retro-sm group-hover:scale-105 transition-transform">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>Follow</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

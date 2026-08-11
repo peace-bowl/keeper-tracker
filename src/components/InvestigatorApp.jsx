@@ -9,14 +9,21 @@ import { useFirestoreInvestigatorSync } from '../utils/useFirebaseSync';
 
 const INV_STORAGE_KEY = 'coc_7e_investigator_state_v1';
 
-export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleTheme, onChangeRole, roomCode }) {
+export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleTheme, onChangeRole, roomCode, initialInvestigator }) {
   const [investigator, setInvestigator] = useState(() => {
+    if (initialInvestigator) return initialInvestigator;
     try {
       const saved = localStorage.getItem(INV_STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return null; // No investigator yet
   });
+
+  useEffect(() => {
+    if (initialInvestigator) {
+      setInvestigator(initialInvestigator);
+    }
+  }, [initialInvestigator]);
 
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
   const [diceLog, setDiceLog] = useState([]);

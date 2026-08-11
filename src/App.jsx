@@ -119,6 +119,21 @@ export default function App() {
     true /* isKeeper */
   );
 
+  const [joinedInvestigator, setJoinedInvestigator] = useState(null);
+
+  const handleJoinRoomAsPlayer = ({ roomCode: joinedRoomCode, character, gameSystem: joinedSystem }) => {
+    setRoomCode(joinedRoomCode);
+    if (joinedSystem && GAME_SYSTEMS[joinedSystem]) {
+      setSelectedGameSystem(joinedSystem);
+      try { localStorage.setItem(SYSTEM_STORAGE_KEY, joinedSystem); } catch (e) {}
+    }
+    if (character) {
+      setJoinedInvestigator(character);
+    }
+    setSelectedRole('investigator');
+    try { localStorage.setItem(ROLE_STORAGE_KEY, 'investigator'); } catch (e) {}
+  };
+
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [diceLog, setDiceLog] = useState([]);
@@ -419,6 +434,7 @@ export default function App() {
     return (
       <SystemAndRoleSelectScreen
         onSelectGameAndRole={handleSelectGameAndRole}
+        onJoinRoomAsPlayer={handleJoinRoomAsPlayer}
       />
     );
   }
@@ -433,6 +449,7 @@ export default function App() {
           onToggleTheme={handleToggleTheme}
           onChangeRole={handleChangeRole}
           roomCode={roomCode}
+          initialInvestigator={joinedInvestigator}
         />
       </ErrorBoundary>
     );
