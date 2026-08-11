@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header';
 import CharacterManager from './components/CharacterManager';
 import CharacterSheet from './components/CharacterSheet';
@@ -10,10 +10,12 @@ import TimerAlertModal from './components/TimerAlertModal';
 import SystemAndRoleSelectScreen from './components/SystemAndRoleSelectScreen';
 import InvestigatorApp from './components/InvestigatorApp';
 import ErrorBoundary from './components/ErrorBoundary';
+import SyncModal from './components/SyncModal';
 import { AlertTriangle, X } from 'lucide-react';
 import { INITIAL_CAMPAIGN } from './data/defaultCampaign';
 import { GAME_SYSTEMS } from './data/gameSystems';
 import { loadAndMigrateCampaign } from './utils/schemaMigration';
+import { useFirebaseSync } from './utils/useFirebaseSync';
 
 const LOCAL_STORAGE_KEY = 'coc_7e_gm_dashboard_state_v1';
 const ROLE_STORAGE_KEY = 'coc_7e_selected_role';
@@ -101,6 +103,21 @@ export default function App() {
   const [activeCharacterId, setActiveCharacterId] = useState(() => {
     return campaign.characters?.[0]?.id || null;
   });
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+
+  // Firestore remote update handler — stable reference via useCallback
+  const handleRemoteUpdate = useCallback((remoteData) => {
+    setCampaign((prev) => ({
+      ...prev,
+      ...remoteData,
+    }));
+  }, []);
+
+  const { syncStatus, roomCode, setRoomCode } = useFirebaseSync(
+    campaign,
+    handleRemoteUpdate,
+    true /* isKeeper */
+  );
 
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -415,6 +432,7 @@ export default function App() {
           theme={theme}
           onToggleTheme={handleToggleTheme}
           onChangeRole={handleChangeRole}
+          roomCode={roomCode}
         />
       </ErrorBoundary>
     );
@@ -460,6 +478,8 @@ export default function App() {
         onResetSampleData={handleResetSampleData}
         onChangeRole={handleChangeRole}
         onChangeGameSystem={handleChangeGameSystem}
+        syncStatus={syncStatus}
+        onOpenSync={() => setIsSyncModalOpen(true)}
       />
 
       {/* Main Workspace Layout */}
@@ -544,6 +564,14 @@ export default function App() {
         expiredTimers={expiredTimers}
         onDismiss={handleDismissTimerAlert}
         onExtend={handleExtendTimer}
+      />
+      {/* Sync Room Code Modal */}
+      <SyncModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        roomCode={roomCode}
+        onSetRoomCode={setRoomCode}
+        syncStatus={syncStatus}
       />
     </div>
   );

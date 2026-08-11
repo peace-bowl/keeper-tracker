@@ -4,6 +4,7 @@ import { getMoonPhaseDetails } from '../utils/cocRules';
 import { parsePdfInvestigator } from '../utils/pdfParser';
 import { GAME_SYSTEMS } from '../data/gameSystems';
 import logoImg from '../assets/logo.png';
+import SyncIndicator from './SyncIndicator';
 
 export default function Header({
   gameSystem = 'coc',
@@ -18,7 +19,9 @@ export default function Header({
   onImportPdfInvestigator,
   onResetSampleData,
   onChangeRole,
-  onChangeGameSystem
+  onChangeGameSystem,
+  syncStatus = 'unconfigured',
+  onOpenSync,
 }) {
   const fileInputRef = useRef(null);
   const currentDate = new Date(timeState.isoDate);
@@ -174,6 +177,9 @@ export default function Header({
         >
           <RefreshCw className="w-3.5 h-3.5 stroke-[2.5]" />
         </button>
+
+        {/* Sync Indicator */}
+        <SyncIndicator syncStatus={syncStatus} onClick={onOpenSync} />
 
         {/* Sidebar Toggle Button */}
         <button

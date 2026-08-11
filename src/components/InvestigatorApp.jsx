@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Sun, Moon, LogOut, Upload, Dices, RotateCcw } from 'lucide-react';
 import CharacterSheet from './CharacterSheet';
 import DiceConsole from './DiceConsole';
 import CheckRollModal from './CheckRollModal';
 import logoImg from '../assets/logo.png';
 import { parsePdfInvestigator } from '../utils/pdfParser';
+import { useFirestoreInvestigatorSync } from '../utils/useFirebaseSync';
 
 const INV_STORAGE_KEY = 'coc_7e_investigator_state_v1';
 
-export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleTheme, onChangeRole }) {
+export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleTheme, onChangeRole, roomCode }) {
   const [investigator, setInvestigator] = useState(() => {
     try {
       const saved = localStorage.getItem(INV_STORAGE_KEY);
@@ -47,6 +48,19 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
       document.removeEventListener('visibilitychange', handleFlushSave);
     };
   }, [investigator]);
+
+  // Receive GM's campaign updates (character list) in real-time
+  const handleGmUpdate = useCallback(({ characters }) => {
+    if (!characters) return;
+    // Only update if this investigator is in the GM's character list
+    setInvestigator((prev) => {
+      if (!prev) return prev;
+      const match = characters.find((c) => c.id === prev.id);
+      return match ? { ...prev, ...match } : prev;
+    });
+  }, []);
+
+  useFirestoreInvestigatorSync(roomCode, handleGmUpdate, investigator);
 
   const handleTriggerRoll = (skillName, skillValue) => {
     setCheckRollState({ isOpen: true, name: skillName, value: skillValue });
