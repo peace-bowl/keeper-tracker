@@ -40,12 +40,12 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY?.trim(),
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN?.trim(),
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID?.trim(),
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET?.trim(),
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID?.trim(),
-  appId: import.meta.env.VITE_FIREBASE_APP_ID?.trim(),
+  apiKey: (import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyA68saSqaWfS7H-77YfHi072kdOQ8S9Kaw').trim(),
+  authDomain: (import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'keeper-tracker-eb7c4.firebaseapp.com').trim(),
+  projectId: (import.meta.env.VITE_FIREBASE_PROJECT_ID || 'keeper-tracker-eb7c4').trim(),
+  storageBucket: (import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'keeper-tracker-eb7c4.firebasestorage.app').trim(),
+  messagingSenderId: (import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '1019334559405').trim(),
+  appId: (import.meta.env.VITE_FIREBASE_APP_ID || '1:1019334559405:web:3e8d0b0a1499512b2be824').trim(),
 };
 
 // Check if Firebase has been configured — all required keys must be present
