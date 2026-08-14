@@ -119,7 +119,6 @@ export function getMoonPhaseDetails(dateObj) {
   const daysInCycle = cyclePos / (86400 * 1000);
   
   let phaseName = 'New Moon';
-  let iconName = 'Moon';
 
   if (daysInCycle < 1.84566) { phaseName = 'New Moon'; }
   else if (daysInCycle < 5.53699) { phaseName = 'Waxing Crescent'; }

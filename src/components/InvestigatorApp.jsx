@@ -28,7 +28,7 @@ export default function InvestigatorApp({ gameSystem = 'coc', theme, onToggleThe
     try {
       const saved = localStorage.getItem(INV_STORAGE_KEY);
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch {}
     return null; // No investigator yet
   });
 

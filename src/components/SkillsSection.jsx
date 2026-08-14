@@ -7,7 +7,7 @@ export default function SkillsSection({
   skills,
   onUpdateSkill,
   onAddSkill,
-  onDeleteSkill,
+  _onDeleteSkill,
   onTriggerRoll
 }) {
   const [searchTerm, setSearchTerm] = useState('');

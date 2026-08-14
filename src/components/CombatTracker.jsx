@@ -35,12 +35,12 @@ export default function CombatTracker({
   gameSystem = 'coc',
   combatState,
   characters = [],
-  activeCharacterId,
+  _activeCharacterId,
   onSelectCharacter,
   onUpdateCombatant,
   onNextTurn,
   onPrevTurn,
-  onResetCombat,
+  _onResetCombat,
   onAddCombatant,
   onRemoveCombatant,
   onClearAllCombatants
@@ -49,9 +49,7 @@ export default function CombatTracker({
   const [addName, setAddName] = useState('');
   const [addDex, setAddDex] = useState(50);
   const [addHp, setAddHp] = useState(10);
-  const [addSan, setAddSan] = useState(50);
   const [addType, setAddType] = useState('monster');
-  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
 
   // PF2E 3-Action Economy tracker state per combatant ID
   const [actionsRemainingMap, setActionsRemainingMap] = useState({});
@@ -83,7 +81,6 @@ export default function CombatTracker({
   });
 
   const activeIndex = combatState.activeTurnIndex || 0;
-  const activeCombatant = sortedCombatants[activeIndex];
 
   // Characters not yet in combat
   const availableInvestigators = characters.filter(ch =>

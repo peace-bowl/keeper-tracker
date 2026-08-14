@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Download, Upload, RefreshCw, Moon, Sun, Clock, PanelRightOpen, PanelRightClose, LogOut, Dices, Zap, Crown } from 'lucide-react';
+import { Download, Upload, RefreshCw, Moon, Sun, Clock, PanelRightOpen, PanelRightClose, LogOut, Zap } from 'lucide-react';
 import { getMoonPhaseDetails } from '../utils/cocRules';
 import { parsePdfInvestigator } from '../utils/pdfParser';
 import { GAME_SYSTEMS } from '../data/gameSystems';
@@ -8,7 +8,6 @@ import SyncIndicator from './SyncIndicator';
 
 export default function Header({
   gameSystem = 'coc',
-  campaignName,
   timeState,
   theme,
   onToggleTheme,
@@ -47,7 +46,7 @@ export default function Header({
         try {
           const parsed = JSON.parse(event.target.result);
           onImportCampaign(parsed);
-        } catch (err) {
+        } catch {
           alert('Invalid Campaign JSON or PDF file format.');
         }
       };

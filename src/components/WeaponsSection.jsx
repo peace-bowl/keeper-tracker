@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Crosshair, Plus, Dices, Trash2, Zap } from 'lucide-react';
+import { Crosshair, Plus, Dices, Trash2 } from 'lucide-react';
 import { getDamageBonusAndBuild } from '../utils/cocRules';
 import RetroNumberInput from './RetroNumberInput';
 
@@ -16,7 +15,7 @@ export default function WeaponsSection({
   const [skillValue, setSkillValue] = useState(50);
   const [damage, setDamage] = useState('1D10');
   const [range, setRange] = useState('15 yds');
-  const [attacks, setAttacks] = useState('1 (2)');
+  const [attacks] = useState('1 (2)');
   const [ammoMax, setAmmoMax] = useState(6);
 
   const { db, build } = getDamageBonusAndBuild(character.stats?.STR, character.stats?.SIZ);

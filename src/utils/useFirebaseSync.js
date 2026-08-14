@@ -27,11 +27,11 @@ export function loadOrCreateRoomCode() {
   try {
     const existing = localStorage.getItem(ROOM_CODE_KEY);
     if (existing && existing.length === 6) return existing;
-  } catch (_) {}
+  } catch {}
   const fresh = generateRoomCode();
   try {
     localStorage.setItem(ROOM_CODE_KEY, fresh);
-  } catch (_) {}
+  } catch {}
   return fresh;
 }
 
@@ -71,7 +71,7 @@ export function useFirebaseSync(campaign, onRemoteUpdate, isKeeper = true) {
     setRoomCodeState(cleaned);
     try {
       localStorage.setItem(ROOM_CODE_KEY, cleaned);
-    } catch (_) {}
+    } catch {}
   }, []);
 
   // ── Firestore listener ───────────────────────────────────────────────────

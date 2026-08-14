@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Plus, Search, Sparkles, Folder, Upload, Terminal, Crown, Zap, BookOpen } from 'lucide-react';
+import { Plus, Search, Sparkles, Folder, Upload, Terminal, Crown } from 'lucide-react';
 import { DEFAULT_COC_SKILLS } from '../utils/cocRules';
 import { parsePdfInvestigator } from '../utils/pdfParser';
 import { GAME_SYSTEMS } from '../data/gameSystems';

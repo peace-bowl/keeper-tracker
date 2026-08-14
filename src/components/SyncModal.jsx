@@ -58,7 +58,7 @@ export default function SyncModal({ isOpen, onClose, roomCode, onSetRoomCode, sy
       await navigator.clipboard.writeText(roomCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (_) {
+    } catch {
       // fallback — select the input
       inputRef.current?.select();
     }

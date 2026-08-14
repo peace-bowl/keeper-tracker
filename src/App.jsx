@@ -35,7 +35,7 @@ export default function App() {
     try {
       const savedSys = localStorage.getItem(SYSTEM_STORAGE_KEY);
       if (savedSys && GAME_SYSTEMS[savedSys]) return savedSys;
-    } catch (e) {}
+    } catch {}
     return 'coc';
   });
 
@@ -44,7 +44,7 @@ export default function App() {
     try {
       const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
       if (savedRole === 'keeper' || savedRole === 'investigator') return savedRole;
-    } catch (e) {}
+    } catch {}
     return null;
   });
 
@@ -52,7 +52,7 @@ export default function App() {
     try {
       localStorage.setItem(SYSTEM_STORAGE_KEY, sys);
       localStorage.setItem(ROLE_STORAGE_KEY, role);
-    } catch (e) {}
+    } catch {}
     setSelectedGameSystem(sys);
     setSelectedRole(role);
 
@@ -70,7 +70,7 @@ export default function App() {
   const handleChangeGameSystem = (newSys) => {
     try {
       localStorage.setItem(SYSTEM_STORAGE_KEY, newSys);
-    } catch (e) {}
+    } catch {}
     setSelectedGameSystem(newSys);
     const sysDefaults = GAME_SYSTEMS[newSys]?.sampleCharacters;
     if (sysDefaults && sysDefaults.length > 0) {
@@ -83,7 +83,7 @@ export default function App() {
   };
 
   const handleChangeRole = () => {
-    try { localStorage.removeItem(ROLE_STORAGE_KEY); } catch (e) {}
+    try { localStorage.removeItem(ROLE_STORAGE_KEY); } catch {}
     setSelectedRole(null);
   };
 
@@ -91,7 +91,7 @@ export default function App() {
   useEffect(() => {
     try {
       document.documentElement.setAttribute('data-game-system', selectedGameSystem);
-    } catch (e) {}
+    } catch {}
   }, [selectedGameSystem]);
 
   const [storageNotice, setStorageNotice] = useState(null);
@@ -133,13 +133,13 @@ export default function App() {
     setRoomCode(joinedRoomCode);
     if (joinedSystem && GAME_SYSTEMS[joinedSystem]) {
       setSelectedGameSystem(joinedSystem);
-      try { localStorage.setItem(SYSTEM_STORAGE_KEY, joinedSystem); } catch (e) {}
+      try { localStorage.setItem(SYSTEM_STORAGE_KEY, joinedSystem); } catch {}
     }
     if (character) {
       setJoinedInvestigator(character);
     }
     setSelectedRole('investigator');
-    try { localStorage.setItem(ROLE_STORAGE_KEY, 'investigator'); } catch (e) {}
+    try { localStorage.setItem(ROLE_STORAGE_KEY, 'investigator'); } catch {}
   };
 
   const [checkRollState, setCheckRollState] = useState({ isOpen: false, name: '', value: 50 });
@@ -152,7 +152,7 @@ export default function App() {
     try {
       const savedTheme = localStorage.getItem('coc_7e_theme');
       if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
-    } catch (e) {}
+    } catch {}
     return 'dark';
   });
 
@@ -160,7 +160,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('coc_7e_theme', theme);
-    } catch (e) {}
+    } catch {}
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');

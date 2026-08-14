@@ -14,7 +14,7 @@ export async function parsePdfInvestigator(fileOrArrayBuffer) {
   let form;
   try {
     form = pdfDoc.getForm();
-  } catch (e) {
+  } catch {
     // If PDF has no AcroForm, throw descriptive error
     throw new Error('This PDF does not contain form fields. Please upload a standard CoC 7e fillable PDF character sheet.');
   }
@@ -37,7 +37,7 @@ export async function parsePdfInvestigator(fileOrArrayBuffer) {
         const sel = field.getSelected();
         value = Array.isArray(sel) ? sel.join(', ') : (sel || '');
       }
-    } catch (e) {}
+    } catch {}
     map[name] = typeof value === 'string' ? value.trim() : value;
   });
 
